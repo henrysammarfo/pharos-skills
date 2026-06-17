@@ -1,0 +1,40 @@
+{
+  "name": "pharos-skills",
+  "version": "1.0.0",
+  "description": "Pharos AI Agent Trust Infrastructure Stack — Phase 1 hackathon submission",
+  "author": "Henry Sam Marfo <https://github.com/henrysammarfo>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/henrysammarfo/pharos-skills.git"
+  },
+  "homepage": "https://github.com/henrysammarfo/pharos-skills",
+  "bugs": {
+    "url": "https://github.com/henrysammarfo/pharos-skills/issues"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:forge": "forge test -vv",
+    "test:all": "npm run compile && npm test && npm run test:forge",
+    "build": "forge build && npm run compile",
+    "deploy:atlantic": "node scripts/deploy-atlantic.mjs",
+    "integrate:atlantic": "node scripts/integrate-atlantic.mjs",
+    "mcp": "node mcp-server/index.js",
+    "x402:http": "node x402-http/server.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "chai": "^4.5.0",
+    "hardhat": "^2.22.17"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@noble/secp256k1": "^2.2.3",
+    "@openzeppelin/contracts": "^5.2.0",
+    "ethers": "^6.13.5"
+  }
+}

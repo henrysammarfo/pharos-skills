@@ -1,0 +1,19 @@
+# Compiler files
+cache/
+artifacts/
+
+# Foundry
+broadcast/
+forge-cache/
+out/
+lib/
+
+# Env
+.env
+.env.*
+wallet.json
+deployments.json
+
+# OS
+.DS_Store
+Thumbs.db
