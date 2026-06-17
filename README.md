@@ -39,10 +39,28 @@ That's it. Setup installs deps, `forge install`, compiles, and runs **all tests*
 npm run judge:readiness
 ```
 
-### Full test suite
+### Foundry / cast (judge wallet path)
 
 ```bash
-npm run test:all
+export RPC=https://atlantic.dplabs-internal.com
+export ACS=0x23Df05400d42122D2962C9ea60d469ba66FE3665
+export IV=0x9cC1A13782574c83f15c874551997Dc3cE3b15DF
+export X402=0xE16B0109D20C0f1977Dd821d285dd479Af0a9187
+export DARKPAY=0xF028782C1e4E3BdB19d31A31Db713d185a07b328
+export SPENDGUARD=0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85
+export AGENT=0xYourAddress
+export PRIVATE_KEY=0xYourKey   # for writes only
+
+forge test
+cast call $ACS "scores(address)" $AGENT --rpc-url $RPC
+```
+
+Per-skill `cast send` examples: each `skills/*/SKILL.md`.
+
+### Full agent + wallet test
+
+```bash
+npm run test:agent   # SDK + MCP write suites on Atlantic
 ```
 
 ### MCP agent integration
@@ -66,11 +84,15 @@ Docs: https://docs.pharos.xyz/developer-guide/x402
 
 ## Architecture
 
-See [`ARCHITECTURE.md`](ARCHITECTURE.md) for diagrams, data flows, and composability.
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for full mermaid diagrams and data flows.
 
-```
-SpendGuard ──gates──► Agent ──► IntentVerifier ──► AgentCreditScore ◄── x402PaymentChannel
-                              └──► DarkPay
+```mermaid
+flowchart LR
+    SG[SpendGuard] --> ACS[AgentCreditScore]
+    IV[IntentVerifier] --> ACS
+    X402[x402PaymentChannel] --> ACS
+    SG --> IV
+    Agent[Agent] --> SG & IV & X402 & DarkPay
 ```
 
 ## Deployed contracts
@@ -87,7 +109,7 @@ Addresses and integration tx hashes: [`deployments.example.json`](deployments.ex
 
 Redeploy stack: `npm run deploy:atlantic` then `npm run integrate:atlantic` (requires funded `wallet.json`).
 
-Verify on Pharosscan: `PHAROSCAN_API_KEY=... npm run verify:atlantic`
+Verify on Pharosscan: `SOCIALSCAN_API_KEY=... npm run verify:atlantic`
 
 ## Testing
 

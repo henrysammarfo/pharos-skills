@@ -25,9 +25,10 @@ flowchart TB
     end
 
     subgraph offchain [Off-Chain]
-        MCP[MCP Server]
+        MCP[MCP Server - 38 tools]
         SDK[JavaScript SDK]
         HTTP[x402 HTTP Middleware]
+        CAST[Foundry cast / forge test]
     end
 
     A --> SG
@@ -41,6 +42,19 @@ flowchart TB
     MCP --> SDK
     SDK --> ACS & IV & X402 & SG & DP
     HTTP --> X402
+    CAST --> ACS & IV & X402 & SG & DP
+```
+
+## Composability overview
+
+```mermaid
+flowchart LR
+    SG[SpendGuard] -->|min score| ACS[AgentCreditScore]
+    SG -->|large spend gate| IV[IntentVerifier]
+    IV -->|verified intent| ACS
+    X402[x402PaymentChannel] -->|record action + repayment| ACS
+    DP[DarkPay]
+    A[Agent] --> SG & IV & X402 & DP
 ```
 
 ## Skill responsibilities
@@ -57,38 +71,78 @@ flowchart TB
 
 ### 1. Trust bootstrap
 
-```
-Agent → registerAgent() → ACS mints soulbound NFT
-Agent → commitIntent() → revealIntent() → ACS.recordVerifiedIntent()
-ACS.computeScore() → getCreditLimit()
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant ACS as AgentCreditScore
+    participant IV as IntentVerifier
+
+    Agent->>ACS: registerAgent()
+    ACS-->>Agent: mint soulbound NFT
+    Agent->>IV: commitIntent(hash)
+    Agent->>IV: revealIntent(...)
+    IV->>ACS: recordVerifiedIntent(agent)
+    Agent->>ACS: computeScore(agent)
+    ACS-->>Agent: score + getCreditLimit()
 ```
 
 ### 2. Guarded spend
 
-```
-Controller → SpendGuard.createPolicy() + setWhitelist()
-Agent → SpendGuard.deposit()
-Agent → (optional) IntentVerifier commit/reveal for large spend
-Agent → SpendGuard.guardedSpend(to, amount, intentId)
+```mermaid
+sequenceDiagram
+    participant Controller
+    participant Agent
+    participant SG as SpendGuard
+    participant IV as IntentVerifier
+    participant ACS as AgentCreditScore
+
+    Controller->>SG: createPolicy() + setWhitelist()
+    Agent->>SG: deposit{value}()
+    opt Large spend
+        Agent->>IV: commitIntent() + revealIntent()
+        IV->>ACS: recordVerifiedIntent()
+    end
+    Agent->>SG: guardedSpend(to, amount, intentId)
+    SG->>ACS: isRegistered + minScore check
+    SG->>IV: isVerifiedIntent (if large)
+    SG-->>Agent: transfer to recipient
 ```
 
-### 3. Micropayment channel
+### 3. Micropayment channel (x402)
 
-```
-Agent → x402.openChannel{value}()
-Agent signs off-chain payment message
-Provider → x402.settlePayment(sig)
-ACS.recordSuccessfulAction + recordRepayment
-Agent → x402.closeChannel()
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant X402 as x402PaymentChannel
+    participant Provider
+    participant ACS as AgentCreditScore
+
+    Agent->>X402: openChannel{value}(provider, duration)
+    X402-->>Agent: channelId
+    Note over Agent,Provider: Off-chain signed payment messages
+    Agent->>Agent: sign(channelId, amount, nonce)
+    Provider->>X402: settlePayment(channelId, amount, nonce, sig)
+    X402->>ACS: recordSuccessfulAction + recordRepayment
+    Agent->>X402: closeChannel(channelId)
+    X402-->>Agent: refund unused collateral
 ```
 
-### 4. Stealth payment
+### 4. Stealth payment (DarkPay)
 
-```
-Receiver → DarkPay.registerStealthMetaAddress()
-Sender SDK → computeStealthAddress()
-Sender → DarkPay.sendNativeStealth{value}()
-Receiver scans announcements → deriveStealthPrivKey()
+```mermaid
+sequenceDiagram
+    participant Receiver
+    participant Sender
+    participant DP as DarkPay
+    participant SDK as DarkPaySDK
+
+    Receiver->>DP: registerStealthMetaAddress(spendPub, viewPub)
+    Sender->>SDK: computeStealthAddress(viewPub, spendPub)
+    SDK-->>Sender: stealthAddress + ephemeralPubKey + viewTag
+    Sender->>DP: sendNativeStealth{value}(stealth, ephPub, viewTag)
+    DP-->>Receiver: announcement indexed on-chain
+    Receiver->>SDK: scanAnnouncements + deriveStealthPrivKey()
+    SDK-->>Receiver: stealth private key to claim funds
 ```
 
 ## Repository layout
@@ -102,7 +156,7 @@ pharos-skills/
 ├── sdk/                    # JavaScript SDK (all skills)
 ├── mcp-server/             # MCP tools for judge agents
 ├── x402-http/              # HTTP 402 Payment Required (Pharos x402 docs)
-├── scripts/                # deploy, integrate, verify, judge readiness
+├── scripts/                # deploy, integrate, verify, judge readiness, test:sdk/mcp
 └── deployments.example.json
 ```
 
@@ -119,11 +173,26 @@ See [`SECURITY.md`](SECURITY.md).
 
 ## Judge / agent testing
 
+```mermaid
+flowchart TD
+    A[git clone + setup.ps1 / setup.sh] --> B[forge test + npm test]
+    B --> C{Wallet funded?}
+    C -->|No| D[npm run judge:readiness]
+    C -->|Yes| E[npm run test:agent]
+    D --> F[cast from skills/*/SKILL.md]
+    E --> G[MCP 38 tools via mcp-config]
+    F --> H[Live Atlantic contracts]
+    G --> H
+```
+
 1. Clone repo → `./setup.sh` or `.\setup.ps1`
-2. `npm run test:all` — full local suite
-3. `npm run judge:readiness` — read-only Atlantic contract calls
-4. `npm run mcp` — wire MCP config to your agent
-5. Optional writes: fund `wallet.json` → `npm run integrate:atlantic`
+2. `npm run test:all` — full local suite (Forge + Hardhat)
+3. `npm run judge:readiness` — read-only Atlantic contract calls (no wallet)
+4. `npm run test:agent` — SDK + MCP wallet write suites (requires funded `wallet.json`)
+5. `cast` commands in each `skills/*/SKILL.md` — Foundry judge path
+6. `npm run mcp` — wire MCP config to your agent
+
+All five contracts **verified** on [Pharosscan Atlantic](https://atlantic.pharosscan.xyz/).
 
 ## Phase 2 (NEXUS)
 

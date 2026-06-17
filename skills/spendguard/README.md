@@ -1,10 +1,8 @@
 # SpendGuard — On-Chain Spending Limits for AI Agents
 
-> **BUIDL entry:** [SpendGuard on DoraHacks](https://dorahacks.io/hackathon/pharos-phase1/)  
-> **This folder:** https://github.com/henrysammarfo/pharos-skills/tree/master/skills/spendguard  
+> **BUIDL folder:** https://github.com/henrysammarfo/pharos-skills/tree/master/skills/spendguard  
+> **Verified:** https://atlantic.pharosscan.xyz/address/0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85#code  
 > **Full stack:** https://github.com/henrysammarfo/pharos-skills
-
-## What it does
 
 Credit-gated **custodial spending vault** for AI agents. Agents deposit PHRS; every spend enforces:
 
@@ -14,64 +12,65 @@ Credit-gated **custodial spending vault** for AI agents. Agents deposit PHRS; ev
 - Recipient whitelist
 - Large-spend intent gate via `IntentVerifier`
 
-## Contract (Atlantic Testnet)
-
-See [`deployments.example.json`](../../deployments.example.json) for the live address after deploy.
-
-```bash
-# Read policy (no wallet needed)
-cast call $SPENDGUARD "getPolicy(address)" $AGENT \
-  --rpc-url https://atlantic.dplabs-internal.com
-
-# Simulate spend
-cast call $SPENDGUARD "canSpend(address,address,uint256,uint256)(bool,bytes32)" \
-  $AGENT $RECIPIENT $AMOUNT_WEI $INTENT_ID \
-  --rpc-url https://atlantic.dplabs-internal.com
-```
-
-## Judge quick test (3 commands)
+## Judge quick test
 
 ```bash
 git clone https://github.com/henrysammarfo/pharos-skills.git && cd pharos-skills
 ./setup.sh   # or: .\setup.ps1 on Windows
+npm run judge:readiness
 npm run test:all
+npm run test:agent   # wallet writes: policy, deposit, guardedSpend
 ```
 
-Read-only Atlantic checks (no private key):
+## Environment
 
 ```bash
-npm run judge:readiness
+export RPC=https://atlantic.dplabs-internal.com
+export SPENDGUARD=0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85
+export AGENT=0xYourAddress
+export RECIPIENT=0xRecipientAddress
+export AMOUNT_WEI=1000000000000000
+export INTENT_ID=0
 ```
 
-## MCP tools (agent testing)
+## Read-only Atlantic
+
+```bash
+cast call $SPENDGUARD "getPolicy(address)" $AGENT --rpc-url $RPC
+
+cast call $SPENDGUARD "canSpend(address,address,uint256,uint256)(bool,bytes32)" \
+  $AGENT $RECIPIENT $AMOUNT_WEI $INTENT_ID --rpc-url $RPC
+```
+
+## MCP tools
 
 | Tool | Purpose |
 |------|---------|
 | `spendguard_can_spend` | Simulate policy without sending tx |
 | `spendguard_get_policy` | Daily limit + remaining budget |
-| `spendguard_deposit` | Fund custody (wallet required) |
-| `spendguard_guarded_spend` | Execute spend (wallet required) |
+| `spendguard_balance` | Custodial balance |
+| `spendguard_create_policy` | Create policy (wallet) |
+| `spendguard_set_whitelist` | Whitelist recipient (wallet) |
+| `spendguard_deposit` | Fund custody (wallet) |
+| `spendguard_withdraw` | Withdraw (wallet) |
+| `spendguard_guarded_spend` | Execute spend (wallet) |
 
-Configure MCP: see [`mcp-server/mcp-config.example.json`](../../mcp-server/mcp-config.example.json)
-
-## SDK
-
-```javascript
-import { SpendGuardSDK } from "../../sdk/index.js";
-const sg = new SpendGuardSDK(provider);
-const [ok, reason] = await sg.canSpend(agent, recipient, amountWei, intentId);
-```
+Configure MCP: [`mcp-server/mcp-config.example.json`](../../mcp-server/mcp-config.example.json)
 
 ## Composability
 
-- Reads score from **AgentCreditScore**
-- Large spends require verified intent from **IntentVerifier**
-- **x402PaymentChannel** registered as executor for skill-routed spends
+```mermaid
+flowchart LR
+    SG[SpendGuard] -->|min score| ACS[AgentCreditScore]
+    SG -->|large spend| IV[IntentVerifier]
+    X402[x402PaymentChannel] -->|executor| SG
+```
 
-## Files
+## Key files
 
 | File | Role |
 |------|------|
-| [`SKILL.md`](./SKILL.md) | Pharos Skill Engine manifest |
-| [`../../src/SpendGuard.sol`](../../src/SpendGuard.sol) | Contract source |
+| [`SKILL.md`](./SKILL.md) | Skill Engine manifest |
+| [`../../src/SpendGuard.sol`](../../src/SpendGuard.sol) | Contract |
 | [`../../test/PharosSkills.t.sol`](../../test/PharosSkills.t.sol) | Forge tests |
+| [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md) | Full mermaid architecture |
