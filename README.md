@@ -52,7 +52,7 @@ npm run mcp
 ```
 
 Copy [`mcp-server/mcp-config.example.json`](mcp-server/mcp-config.example.json) into your agent MCP config.  
-17 tools covering all 5 skills. Read-only tools work with `deployments.example.json` only.
+**38 tools** covering all 5 skills (read-only + full wallet write flows). Read-only tools work with `deployments.example.json` only. Writes need funded `wallet.json` or `PRIVATE_KEY`.
 
 ### HTTP x402 (Pharos native protocol)
 
@@ -97,6 +97,9 @@ Verify on Pharosscan: `PHAROSCAN_API_KEY=... npm run verify:atlantic`
 | Hardhat | `npm test` | Cross-contract integration |
 | Atlantic | `npm run integrate:atlantic` | Live testnet full stack |
 | Judge | `npm run judge:readiness` | Read-only RPC contract checks |
+| SDK | `npm run test:sdk` | SDK read tests (+ wallet writes if `wallet.json` present) |
+| MCP | `npm run test:mcp` | MCP protocol + tool tests (+ wallet writes if funded) |
+| Agent full | `npm run test:agent` | SDK + MCP wallet write suites (requires funded `wallet.json`) |
 
 ## DoraHacks — 5 BUIDLs
 

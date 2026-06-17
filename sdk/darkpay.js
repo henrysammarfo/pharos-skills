@@ -1,5 +1,6 @@
 import * as secp256k1 from "@noble/secp256k1";
-import { keccak256, hexlify, getBytes, getAddress, toBeHex } from "ethers";
+import { Contract, keccak256, hexlify, getBytes, getAddress, toBeHex, parseEther } from "ethers";
+import { loadDeploymentsFile, loadAbi } from "./config.js";
 
 function pubKeyToAddress(pubKeyBytes) {
   const bytes = pubKeyBytes instanceof Uint8Array ? pubKeyBytes : getBytes(pubKeyBytes);
@@ -10,6 +11,18 @@ function pubKeyToAddress(pubKeyBytes) {
 
 function hashSharedSecret(shared) {
   return getBytes(keccak256(shared));
+}
+
+function toBytes33(hexOrBytes) {
+  const b = typeof hexOrBytes === "string" ? getBytes(hexOrBytes) : hexOrBytes;
+  if (b.length !== 33) throw new Error("Expected 33-byte compressed pubkey");
+  return b;
+}
+
+function toBytes1(hexOrBytes) {
+  const b = typeof hexOrBytes === "string" ? getBytes(hexOrBytes) : hexOrBytes;
+  if (b.length !== 1) throw new Error("Expected 1-byte view tag");
+  return b;
 }
 
 export class DarkPaySDK {
@@ -57,6 +70,108 @@ export class DarkPaySDK {
     const sScalar = BigInt(hexlify(mySpendPriv));
     const stealth = (sScalar + hScalar) % secp256k1.CURVE.n;
     return getBytes(toBeHex(stealth, 32));
+  }
+
+  static keysToHex(keys) {
+    return {
+      spendingPrivKey: hexlify(keys.spendingPrivKey),
+      viewingPrivKey: hexlify(keys.viewingPrivKey),
+      spendingPubKey: hexlify(keys.spendingPubKey),
+      viewingPubKey: hexlify(keys.viewingPubKey),
+    };
+  }
+
+  static keysFromHex({ spendingPrivKey, viewingPrivKey, spendingPubKey, viewingPubKey }) {
+    if (spendingPrivKey && viewingPrivKey) {
+      const sPriv = getBytes(spendingPrivKey);
+      const vPriv = getBytes(viewingPrivKey);
+      return {
+        spendingPrivKey: sPriv,
+        viewingPrivKey: vPriv,
+        spendingPubKey: secp256k1.getPublicKey(sPriv, true),
+        viewingPubKey: secp256k1.getPublicKey(vPriv, true),
+      };
+    }
+    return {
+      spendingPubKey: toBytes33(spendingPubKey),
+      viewingPubKey: toBytes33(viewingPubKey),
+    };
+  }
+}
+
+export class DarkPayChainSDK {
+  constructor(signerOrProvider, address) {
+    const dep = loadDeploymentsFile();
+    this.contract = new Contract(
+      address || dep.contracts.DarkPay,
+      loadAbi("DarkPay"),
+      signerOrProvider
+    );
+  }
+
+  async announcementCount() {
+    return this.contract.announcementCount();
+  }
+
+  async getAnnouncements(fromBlock) {
+    return this.contract.getAnnouncements(fromBlock);
+  }
+
+  async getMetaAddressComponents(agent) {
+    return this.contract.getMetaAddressComponents(agent);
+  }
+
+  async registerStealthMetaAddress(spendingPubKeyHex, viewingPubKeyHex, opts = {}) {
+    return this.contract.registerStealthMetaAddress(
+      toBytes33(spendingPubKeyHex),
+      toBytes33(viewingPubKeyHex),
+      opts
+    );
+  }
+
+  async sendNativeStealth(stealthAddress, ephemeralPubKeyHex, viewTagHex, amountEth, opts = {}) {
+    return this.contract.sendNativeStealth(
+      stealthAddress,
+      toBytes33(ephemeralPubKeyHex),
+      toBytes1(viewTagHex),
+      { value: parseEther(amountEth), ...opts }
+    );
+  }
+
+  async scanAnnouncements(fromBlock, viewingPrivKeyHex, spendingPubKeyHex, spendingPrivKeyHex) {
+    const viewingPrivKey = getBytes(viewingPrivKeyHex);
+    const spendingPubKey = toBytes33(spendingPubKeyHex);
+    const spendingPrivKey = spendingPrivKeyHex ? getBytes(spendingPrivKeyHex) : null;
+    const announcements = await this.getAnnouncements(fromBlock);
+    const matches = [];
+    for (const a of announcements) {
+      const ann = {
+        stealthAddress: a.stealthAddress,
+        ephemeralPubKey: getBytes(a.ephemeralPubKey),
+        viewTag: getBytes(a.viewTag),
+        token: a.token,
+        amount: a.amount,
+        blockNumber: a.blockNumber,
+      };
+      const check = DarkPaySDK.checkAnnouncement(ann, viewingPrivKey, spendingPubKey);
+      if (check.isForMe) {
+        const row = {
+          stealthAddress: ann.stealthAddress,
+          ephemeralPubKey: hexlify(ann.ephemeralPubKey),
+          viewTag: hexlify(ann.viewTag),
+          token: ann.token,
+          amount: ann.amount.toString(),
+          blockNumber: Number(ann.blockNumber),
+        };
+        if (spendingPrivKey) {
+          row.stealthPrivKey = hexlify(
+            DarkPaySDK.deriveStealthPrivKey(viewingPrivKey, spendingPrivKey, ann.ephemeralPubKey)
+          );
+        }
+        matches.push(row);
+      }
+    }
+    return matches;
   }
 }
 

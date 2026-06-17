@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Sync deployments.example.json contract addresses into all skills/*/SKILL.md */
+/** Sync deployments.example.json contract addresses into skill SKILL.md files */
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join } from "path";
 

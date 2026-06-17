@@ -40,5 +40,8 @@ git config core.hooksPath .githooks 2>$null
 
 Write-Host "`n=== Setup complete ===" -ForegroundColor Green
 Write-Host "Read-only judge test:  npm run judge:readiness"
+Write-Host "SDK smoke test:        npm run test:sdk"
+Write-Host "MCP smoke test:        npm run test:mcp"
+Write-Host "Full agent+wallet:     npm run test:agent   (needs funded wallet.json)"
 Write-Host "MCP server:            npm run mcp"
 Write-Host "HTTP x402:             npm run x402:http"

@@ -8,5 +8,10 @@
         "DEPLOYMENTS_PATH": "deployments.example.json"
       }
     }
+  },
+  "_notes": {
+    "wallet_writes": "Place funded wallet.json in repo root OR set PRIVATE_KEY in env for write MCP tools",
+    "read_only": "Read tools work with deployments.example.json only — no wallet needed",
+    "judge_tests": "npm run test:sdk && npm run test:mcp (add --wallet for full on-chain write suite)"
   }
 }

@@ -18,4 +18,4 @@ invariant = { runs = 64 }
 atlantic = "https://atlantic.dplabs-internal.com"
 
 [etherscan]
-atlantic = { key = "${PHAROSCAN_API_KEY}", url = "https://atlantic.pharosscan.xyz/api" }
+atlantic = { key = "${PHAROSCAN_API_KEY}", url = "https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract", chain = 688689 }

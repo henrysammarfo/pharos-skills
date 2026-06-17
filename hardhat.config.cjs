@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-ethers");
 require("@nomicfoundation/hardhat-chai-matchers");
+require("@nomicfoundation/hardhat-verify");
 const fs = require("fs");
 
 function getAccounts() {
@@ -29,5 +30,24 @@ module.exports = {
       timeout: 180000,
       httpHeaders: {},
     },
+  },
+  etherscan: {
+    apiKey: {
+      atlantic: process.env.SOCIALSCAN_API_KEY || process.env.PHAROSCAN_API_KEY || "pharos",
+    },
+    customChains: [
+      {
+        network: "atlantic",
+        chainId: 688689,
+        urls: {
+          apiURL:
+            "https://api.socialscan.io/pharos-atlantic-testnet/v1/explorer/command_api/contract",
+          browserURL: "https://atlantic.pharosscan.xyz/",
+        },
+      },
+    ],
+  },
+  sourcify: {
+    enabled: false,
   },
 };

@@ -25,12 +25,16 @@
     "integrate:atlantic": "node scripts/integrate-atlantic.mjs",
     "verify:atlantic": "node scripts/verify-atlantic.mjs",
     "judge:readiness": "node scripts/judge-readiness.mjs",
+    "test:sdk": "node scripts/test-sdk.mjs",
+    "test:mcp": "node scripts/test-mcp.mjs",
+    "test:agent": "node scripts/test-sdk.mjs --wallet && node scripts/test-mcp.mjs --wallet",
     "mcp": "node mcp-server/index.js",
     "x402:http": "node x402-http/server.js"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-verify": "^2.1.3",
     "chai": "^4.5.0",
     "hardhat": "^2.22.17"
   },

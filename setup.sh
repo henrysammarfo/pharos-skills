@@ -23,5 +23,8 @@ git config core.hooksPath .githooks 2>/dev/null || true
 echo ""
 echo "=== Setup complete ==="
 echo "Read-only judge test:  npm run judge:readiness"
+echo "SDK smoke test:        npm run test:sdk"
+echo "MCP smoke test:        npm run test:mcp"
+echo "Full agent+wallet:     npm run test:agent   (needs funded wallet.json)"
 echo "MCP server:            npm run mcp"
 echo "HTTP x402:             npm run x402:http"
