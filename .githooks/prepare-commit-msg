@@ -1,0 +1,9 @@
+#!/bin/sh
+# Strip AI / unwanted co-author trailers before commits land.
+# Activate: git config core.hooksPath .githooks
+msg_file="$1"
+[ -f "$msg_file" ] || exit 0
+sed -i.bak '/cursoragent@cursor\.com/Id' "$msg_file" 2>/dev/null || sed -i '' '/cursoragent@cursor\.com/Id' "$msg_file"
+sed -i.bak '/Co-authored-by: Cursor/Id' "$msg_file" 2>/dev/null || sed -i '' '/Co-authored-by: Cursor/Id' "$msg_file"
+sed -i.bak '/royalealaka@gmail.com/Id' "$msg_file" 2>/dev/null || sed -i '' '/royalealaka@gmail.com/Id' "$msg_file"
+rm -f "$msg_file.bak"
