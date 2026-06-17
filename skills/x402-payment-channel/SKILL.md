@@ -19,16 +19,16 @@ micropayments. HTTP x402 (`402 Payment Required`) middleware lives in `x402-http
 
 ## Contract Address (Atlantic Testnet)
 
-x402PaymentChannel: `0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe`
+x402PaymentChannel: `0xE16B0109D20C0f1977Dd821d285dd479Af0a9187`
 
-Explorer: https://atlantic.pharosscan.xyz/address/0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe
+Explorer: https://atlantic.pharosscan.xyz/address/0xE16B0109D20C0f1977Dd821d285dd479Af0a9187
 
-Deploy tx: `0x645aec45da3ddcaab1774e0377908878a1d1e87c80d5930f0fe6371b454587ca`
+Deploy tx: `0xc9609a42cd13319b20efd5a3ac439357c68f7e3c2bd368d3e25f20f81a18a379`
 
 ## Open payment channel (deposit 0.01 PHRS as collateral)
 
 ```bash
-cast send 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
+cast send 0xE16B0109D20C0f1977Dd821d285dd479Af0a9187 \
   "openChannel(address,uint256)(bytes32)" \
   $SERVICE_PROVIDER 1000 \
   --value 0.01ether \
@@ -39,7 +39,7 @@ cast send 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
 ## Generate payment message to sign off-chain
 
 ```bash
-cast call 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
+cast call 0xE16B0109D20C0f1977Dd821d285dd479Af0a9187 \
   "getPaymentMessage(bytes32,uint256,uint256)(bytes32)" \
   $CHANNEL_ID 1000000000000000 1 \
   --rpc-url https://atlantic.dplabs-internal.com
@@ -48,7 +48,7 @@ cast call 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
 ## Service provider settles payment
 
 ```bash
-cast send 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
+cast send 0xE16B0109D20C0f1977Dd821d285dd479Af0a9187 \
   "settlePayment(bytes32,uint256,uint256,bytes)" \
   $CHANNEL_ID 1000000000000000 1 $AGENT_SIGNATURE \
   --private-key $PROVIDER_KEY \
@@ -57,9 +57,9 @@ cast send 0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe \
 
 ## Verified integration
 
-- Open channel: `0x646f231efc6c4960acb43a9ed5f9c70eae849b3a5ae2fc30c810607c67b8b877`
-- Settle payment: `0x1f75780d66f158ec90fcbe6aa725a1093e23ebe9dbc08f59f2a98fd364959ed7`
-- Close channel: `0x48d0a230aaa30361afe6e9640aa7e7671b80070b345d904f23b0c84874655e3c`
+- Open channel: `0x500f089095eab3813e5909d0cc1e6561ead4253a73375366adc4fb0d7c43fa63`
+- Settle payment: `0x840f29340ab81b0ead39b9a99c6291ea1197b8d9e960092b7fd7446b75a83be9`
+- Close channel: `0x3e543e2228074855750d87aefdcb541703ab3ee342617e73d26f0b72826ca723`
 
 ## HTTP x402 middleware
 

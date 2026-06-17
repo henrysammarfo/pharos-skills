@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import {
   ContractFactory,
   JsonRpcProvider,
@@ -50,6 +50,7 @@ async function main() {
   const iv = await deployOne(wallet, "IntentVerifier", acs.address);
   const x402 = await deployOne(wallet, "x402PaymentChannel", acs.address);
   const dp = await deployOne(wallet, "DarkPay");
+  const sg = await deployOne(wallet, "SpendGuard", acs.address);
 
   const acsContract = acs.contract;
   const tx1 = await acsContract.addSkill(iv.address, { gasLimit: 300_000n });
@@ -57,10 +58,17 @@ async function main() {
   const tx2 = await acsContract.addSkill(x402.address, { gasLimit: 300_000n });
   await tx2.wait();
 
+  const sgContract = sg.contract;
+  const tx3 = await sgContract.setIntentVerifier(iv.address, { gasLimit: 200_000n });
+  await tx3.wait();
+  const tx4 = await sgContract.setExecutor(x402.address, true, { gasLimit: 200_000n });
+  await tx4.wait();
+
   const deployments = {
     network: "Pharos Atlantic Testnet",
     chainId: 688689,
     rpc: RPC,
+    explorer: "https://atlantic.pharosscan.xyz",
     deployer: wallet.address,
     deployedAt: new Date().toISOString(),
     contracts: {
@@ -68,18 +76,23 @@ async function main() {
       IntentVerifier: iv.address,
       x402PaymentChannel: x402.address,
       DarkPay: dp.address,
+      SpendGuard: sg.address,
     },
     transactions: {
       deploy_AgentCreditScore: acs.tx,
       deploy_IntentVerifier: iv.tx,
       deploy_x402PaymentChannel: x402.tx,
       deploy_DarkPay: dp.tx,
+      deploy_SpendGuard: sg.tx,
       addSkill_IntentVerifier: tx1.hash,
       addSkill_x402PaymentChannel: tx2.hash,
+      spendGuard_setIntentVerifier: tx3.hash,
+      spendGuard_setExecutor_x402: tx4.hash,
     },
   };
 
   writeFileSync(DEPLOYMENTS_PATH, JSON.stringify(deployments, null, 2));
+  writeFileSync("deployments.example.json", JSON.stringify(deployments, null, 2));
   console.log("Saved", DEPLOYMENTS_PATH);
 }
 

@@ -1,4 +1,9 @@
-import { readFileSync, writeFileSync } from "fs";
+#!/usr/bin/env node
+/**
+ * Full Atlantic integration — all 5 skills. Run after deploy-atlantic.mjs.
+ * Judges: use deployments.example.json (read-only calls) or fund wallet.json for writes.
+ */
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import {
   Contract,
   JsonRpcProvider,
@@ -6,12 +11,11 @@ import {
   parseEther,
   hexlify,
   getBytes,
-  id,
 } from "ethers";
 import { DarkPaySDK } from "../sdk/darkpay.js";
 
 const RPC = process.env.RPC_URL || "https://atlantic.dplabs-internal.com";
-const DEPLOYMENTS_PATH = "deployments.json";
+const DEPLOYMENTS_PATH = existsSync("deployments.json") ? "deployments.json" : "deployments.example.json";
 
 function makeProvider() {
   const provider = new JsonRpcProvider(RPC, 688689, { staticNetwork: true, batchMaxCount: 1 });
@@ -37,6 +41,7 @@ async function main() {
   const iv = new Contract(dep.contracts.IntentVerifier, loadAbi("IntentVerifier"), wallet);
   const x402 = new Contract(dep.contracts.x402PaymentChannel, loadAbi("x402PaymentChannel"), wallet);
   const dp = new Contract(dep.contracts.DarkPay, loadAbi("DarkPay"), wallet);
+  const sg = new Contract(dep.contracts.SpendGuard, loadAbi("SpendGuard"), wallet);
 
   const tests = {};
 
@@ -63,9 +68,56 @@ async function main() {
     .find((e) => e && e.name === "IntentCommitted");
   const intentId = intentCommitted.args.id;
 
+  const recipient = Wallet.createRandom().address;
+  const policyTx = await sg.createPolicy(
+    wallet.address,
+    parseEther("1"),
+    parseEther("0.1"),
+    0n,
+    parseEther("0.05"),
+    true,
+    { gasLimit: 500_000n }
+  );
+  await policyTx.wait();
+  tests.spendGuard_createPolicy = policyTx.hash;
+
+  const wlTx = await sg.setWhitelist(wallet.address, recipient, true, { gasLimit: 200_000n });
+  await wlTx.wait();
+  tests.spendGuard_whitelist = wlTx.hash;
+
+  const depTx = await sg.deposit({ value: parseEther("0.2"), gasLimit: 300_000n });
+  await depTx.wait();
+  tests.spendGuard_deposit = depTx.hash;
+
+  try {
+    await sg.guardedSpend.staticCall(recipient, parseEther("0.08"), 0n);
+    tests.spendGuard_largeBlocked = "FAIL-should-revert";
+  } catch {
+    tests.spendGuard_largeBlocked = "ok-intent-required";
+  }
+
   const revealTx = await iv.revealIntent(intentId, actionType, reasoning, expectedOutcome, nonce, { gasLimit: 800_000n });
   await revealTx.wait();
   tests.revealIntent = revealTx.hash;
+
+  const eipHash = await iv.computeHashEIP712(actionType, reasoning, expectedOutcome, 99n);
+  const eipCommit = await iv.commitIntentEIP712(eipHash, { gasLimit: 500_000n });
+  const eipReceipt = await eipCommit.wait();
+  tests.commitIntentEIP712 = eipCommit.hash;
+  const eipId = eipReceipt.logs
+    .map((l) => { try { return iv.interface.parseLog(l); } catch { return null; } })
+    .find((e) => e && e.name === "IntentCommitted").args.id;
+  const eipReveal = await iv.revealIntent(eipId, actionType, reasoning, expectedOutcome, 99n, { gasLimit: 800_000n });
+  await eipReveal.wait();
+  tests.revealIntentEIP712 = eipReveal.hash;
+
+  const smallSpend = await sg.guardedSpend(recipient, parseEther("0.01"), 0n, { gasLimit: 500_000n });
+  await smallSpend.wait();
+  tests.spendGuard_smallSpend = smallSpend.hash;
+
+  const largeSpend = await sg.guardedSpend(recipient, parseEther("0.08"), intentId, { gasLimit: 500_000n });
+  await largeSpend.wait();
+  tests.spendGuard_largeSpendWithIntent = largeSpend.hash;
 
   const scoreTx = await acs.computeScore(wallet.address, { gasLimit: 500_000n });
   await scoreTx.wait();
@@ -73,7 +125,7 @@ async function main() {
 
   const score = await acs.scores(wallet.address);
   tests.scoreValue = score.value.toString();
-  console.log("Score after intent:", score.value.toString());
+  console.log("Score after intents:", score.value.toString());
 
   const providerWallet = Wallet.createRandom().connect(provider);
   console.log("Provider wallet:", providerWallet.address);
@@ -84,6 +136,7 @@ async function main() {
   });
   await fundTx.wait();
   tests.fundProvider = fundTx.hash;
+
   const openTx = await x402.openChannel(providerWallet.address, 1000, {
     value: parseEther("0.01"),
     gasLimit: 800_000n,
@@ -91,9 +144,8 @@ async function main() {
   const openReceipt = await openTx.wait();
   tests.openChannel = openTx.hash;
 
-  const iface = x402.interface;
   const channelOpened = openReceipt.logs
-    .map((l) => { try { return iface.parseLog(l); } catch { return null; } })
+    .map((l) => { try { return x402.interface.parseLog(l); } catch { return null; } })
     .find((e) => e && e.name === "ChannelOpened");
   const channelId = channelOpened.args.id;
 
@@ -146,19 +198,17 @@ async function main() {
     const check = DarkPaySDK.checkAnnouncement(ann, receiverKeys.viewingPrivKey, receiverKeys.spendingPubKey);
     if (check.isForMe) {
       found = true;
-      const priv = DarkPaySDK.deriveStealthPrivKey(
-        receiverKeys.viewingPrivKey,
-        receiverKeys.spendingPrivKey,
-        ann.ephemeralPubKey
+      tests.stealthPrivKeyDerived = hexlify(
+        DarkPaySDK.deriveStealthPrivKey(receiverKeys.viewingPrivKey, receiverKeys.spendingPrivKey, ann.ephemeralPubKey)
       );
-      tests.stealthPrivKeyDerived = hexlify(priv);
     }
   }
   tests.stealthAnnouncementMatched = found;
 
   dep.integrationTests = tests;
   dep.integrationCompletedAt = new Date().toISOString();
-  writeFileSync(DEPLOYMENTS_PATH, JSON.stringify(dep, null, 2));
+  writeFileSync("deployments.json", JSON.stringify(dep, null, 2));
+  writeFileSync("deployments.example.json", JSON.stringify(dep, null, 2));
   console.log(JSON.stringify(tests, null, 2));
 }
 

@@ -1,29 +1,10 @@
-import { readFileSync } from "fs";
-import { Contract, JsonRpcProvider, Wallet, parseEther } from "ethers";
+import { Contract, JsonRpcProvider, Wallet, parseEther, hexlify, getBytes } from "ethers";
 import { DarkPaySDK } from "./darkpay.js";
-
-const RPC = process.env.RPC_URL || "https://atlantic.dplabs-internal.com";
-const CHAIN_ID = 688689;
-
-function loadDeployments() {
-  return JSON.parse(readFileSync("deployments.json", "utf8"));
-}
-
-function loadAbi(name) {
-  return JSON.parse(readFileSync(`artifacts/src/${name}.sol/${name}.json`, "utf8")).abi;
-}
-
-function getProvider() {
-  return new JsonRpcProvider(RPC, CHAIN_ID, { staticNetwork: true });
-}
-
-function getWallet(privateKey) {
-  return new Wallet(privateKey || process.env.PRIVATE_KEY, getProvider());
-}
+import { loadDeploymentsFile, loadAbi, RPC, CHAIN_ID } from "./config.js";
 
 export class AgentCreditScoreSDK {
   constructor(signerOrProvider, address) {
-    const dep = loadDeployments();
+    const dep = loadDeploymentsFile();
     this.contract = new Contract(
       address || dep.contracts.AgentCreditScore,
       loadAbi("AgentCreditScore"),
@@ -35,9 +16,13 @@ export class AgentCreditScoreSDK {
     return this.contract.registerAgent();
   }
 
+  async isRegistered(agent) {
+    return this.contract.isRegistered(agent);
+  }
+
   async getScore(agent) {
     const s = await this.contract.scores(agent);
-    return Number(s.value);
+    return Number(s.value ?? s[0]);
   }
 
   async getCreditLimit(agent) {
@@ -57,7 +42,7 @@ export class AgentCreditScoreSDK {
 
 export class IntentVerifierSDK {
   constructor(signerOrProvider, address) {
-    const dep = loadDeployments();
+    const dep = loadDeploymentsFile();
     this.contract = new Contract(
       address || dep.contracts.IntentVerifier,
       loadAbi("IntentVerifier"),
@@ -74,22 +59,43 @@ export class IntentVerifierSDK {
     );
   }
 
+  buildHashEIP712(actionType, reasoning, expectedOutcome, nonce) {
+    return this.contract.computeHashEIP712.staticCall(
+      actionType,
+      reasoning,
+      expectedOutcome,
+      nonce
+    );
+  }
+
   async commitIntent(hash) {
     return this.contract.commitIntent(hash);
+  }
+
+  async commitIntentEIP712(typedHash) {
+    return this.contract.commitIntentEIP712(typedHash);
   }
 
   async revealIntent(intentId, actionType, reasoning, expectedOutcome, nonce) {
     return this.contract.revealIntent(intentId, actionType, reasoning, expectedOutcome, nonce);
   }
 
+  async isVerifiedIntent(agent, intentId) {
+    return this.contract.isVerifiedIntent(agent, intentId);
+  }
+
   async getHistory(agent) {
     return this.contract.getIntentHistory(agent);
+  }
+
+  async intentCount(agent) {
+    return this.contract.intentCount(agent);
   }
 }
 
 export class X402PaymentChannelSDK {
   constructor(signerOrProvider, address) {
-    const dep = loadDeployments();
+    const dep = loadDeploymentsFile();
     this.contract = new Contract(
       address || dep.contracts.x402PaymentChannel,
       loadAbi("x402PaymentChannel"),
@@ -121,5 +127,60 @@ export class X402PaymentChannelSDK {
   }
 }
 
+export class SpendGuardSDK {
+  constructor(signerOrProvider, address) {
+    const dep = loadDeploymentsFile();
+    this.contract = new Contract(
+      address || dep.contracts.SpendGuard,
+      loadAbi("SpendGuard"),
+      signerOrProvider
+    );
+  }
+
+  async createPolicy(agent, dailyLimit, perTxLimit, minScore, largeSpendThreshold, requireIntentForLarge) {
+    return this.contract.createPolicy(
+      agent,
+      dailyLimit,
+      perTxLimit,
+      minScore,
+      largeSpendThreshold,
+      requireIntentForLarge
+    );
+  }
+
+  async setWhitelist(agent, recipient, allowed) {
+    return this.contract.setWhitelist(agent, recipient, allowed);
+  }
+
+  async deposit(amountEth) {
+    return this.contract.deposit({ value: parseEther(amountEth) });
+  }
+
+  async guardedSpend(to, amountWei, intentId = 0n) {
+    return this.contract.guardedSpend(to, amountWei, intentId);
+  }
+
+  async canSpend(agent, to, amountWei, intentId = 0n) {
+    return this.contract.canSpend(agent, to, amountWei, intentId);
+  }
+
+  async getPolicy(agent) {
+    return this.contract.getPolicy(agent);
+  }
+
+  async balance(agent) {
+    return this.contract.balances(agent);
+  }
+}
+
 export { DarkPaySDK };
-export { loadDeployments, getProvider, getWallet, RPC, CHAIN_ID };
+
+export function getProvider() {
+  return new JsonRpcProvider(RPC, CHAIN_ID, { staticNetwork: true });
+}
+
+export function getWallet(privateKey) {
+  return new Wallet(privateKey || process.env.PRIVATE_KEY, getProvider());
+}
+
+export { loadDeploymentsFile, RPC, CHAIN_ID };

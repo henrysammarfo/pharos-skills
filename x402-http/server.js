@@ -1,8 +1,9 @@
 import { createServer } from "http";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 
 const PORT = process.env.X402_PORT || 4020;
-const dep = JSON.parse(readFileSync("deployments.json", "utf8"));
+const depPath = existsSync("deployments.json") ? "deployments.json" : "deployments.example.json";
+const dep = JSON.parse(readFileSync(depPath, "utf8"));
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);

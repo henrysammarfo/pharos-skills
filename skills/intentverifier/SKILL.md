@@ -16,16 +16,16 @@ agent did not deviate. Unrevealed intents are penalized.
 
 ## Contract Address (Atlantic Testnet)
 
-IntentVerifier: `0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F`
+IntentVerifier: `0x9cC1A13782574c83f15c874551997Dc3cE3b15DF`
 
-Explorer: https://atlantic.pharosscan.xyz/address/0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F
+Explorer: https://atlantic.pharosscan.xyz/address/0x9cC1A13782574c83f15c874551997Dc3cE3b15DF
 
-Deploy tx: `0xfad5c0b33524d9aa9e73f82bb4a5755d435c0611af2b14bed762895720947c7b`
+Deploy tx: `0x3532f50c6c475bea77f5c41d73aa1c8677490d857e7a2c3f26762a8a1aff7bfe`
 
 ## Compute hash off-chain first
 
 ```bash
-cast call 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F \
+cast call 0x9cC1A13782574c83f15c874551997Dc3cE3b15DF \
   "computeHash(string,string,bytes32,uint256)(bytes32)" \
   "SWAP" "BTC momentum positive, vol low" \
   0x0000000000000000000000000000000000000000000000000000000000000001 42 \
@@ -35,7 +35,7 @@ cast call 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F \
 ## Commit intent BEFORE acting
 
 ```bash
-cast send 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F "commitIntent(bytes32)(uint256)" $HASH \
+cast send 0x9cC1A13782574c83f15c874551997Dc3cE3b15DF "commitIntent(bytes32)(uint256)" $HASH \
   --private-key $PRIVATE_KEY \
   --rpc-url https://atlantic.dplabs-internal.com
 ```
@@ -43,7 +43,7 @@ cast send 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F "commitIntent(bytes32)(uint
 ## Reveal intent AFTER acting
 
 ```bash
-cast send 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F \
+cast send 0x9cC1A13782574c83f15c874551997Dc3cE3b15DF \
   "revealIntent(uint256,string,string,bytes32,uint256)" \
   0 "SWAP" "BTC momentum positive, vol low" \
   0x0000000000000000000000000000000000000000000000000000000000000001 42 \
@@ -51,8 +51,19 @@ cast send 0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F \
   --rpc-url https://atlantic.dplabs-internal.com
 ```
 
+## EIP-712 typed hash
+
+```bash
+cast call 0x9cC1A13782574c83f15c874551997Dc3cE3b15DF \
+  "computeHashEIP712(string,string,bytes32,uint256)(bytes32)" \
+  "SWAP" "BTC momentum positive, vol low" \
+  0x0000000000000000000000000000000000000000000000000000000000000001 42 \
+  --rpc-url https://atlantic.dplabs-internal.com
+```
+
 ## Verified integration
 
-- Commit tx: `0xf4e48e2ca7ed5fac947caeae10b0795b674ea491e0544a3f1718d04c37370d33`
-- Reveal tx: `0xdd2d7ffcad0f60c3591f70483f5afc51407f5bb68370145c8d2fc4f3ceec1748`
+- Commit tx: `0xae3ee358ef9abc1b79bacb5fb18939fb727f08840e567028ef6c49964d166f15`
+- Reveal tx: `0xc6300bd0bb0173f5e8d2f70904e3129388722c06151c727c0349bfd70603015b`
+- EIP-712 commit: `0xb3edf987bebf7ed75b083e11b00d24711221d0739a6a62985fc406f56617345a`
 - Updates AgentCreditScore on successful verify

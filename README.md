@@ -1,86 +1,138 @@
-# Pharos Skills — AI Agent Trust Infrastructure Stack
+# Pharos Trust Stack — 5 Skills for AI Agents
 
-Production-grade Phase 1 submission for the [Pharos Skill-to-Agent Dual Cascade Hackathon](https://dorahacks.io/hackathon/pharos-phase1/).
+**Builder:** Henry Sam Marfo · [github.com/henrysammarfo](https://github.com/henrysammarfo)  
+**Network:** Pharos Atlantic Testnet · Chain `688689` · RPC `https://atlantic.dplabs-internal.com`  
+**Hackathon:** [Skill-to-Agent Dual Cascade — Phase 1](https://dorahacks.io/hackathon/pharos-phase1/)
 
-Four composable on-chain Skills forming the trust layer for Pharos AI agents:
+Five deployed, composable on-chain Skills forming the trust + safety + payments layer for Pharos AI agents.
 
-| Skill | Contract | Purpose |
-|-------|----------|---------|
-| **AgentCreditScore** | `0x0b61985Ea2F43360685FdbE02D518C5B0e73CF36` | Soulbound credit scoring (0–1000) |
-| **IntentVerifier** | `0x97B9ecB1CbFa7fC78Eb83e61A208b37D9f3F288F` | Commit-reveal AI intent accountability |
-| **x402PaymentChannel** | `0x827F4b43B1468D2B2b35e9bd99A16a0FA426acbe` | Signed off-chain micropayment channels |
-| **DarkPay** | `0x294919b4114Ac0Fe30F1551351655e016AC34eBa` | ERC-5564-inspired stealth payments |
+## Skills (BUIDL entry points)
 
-**Network:** Pharos Atlantic Testnet · Chain ID `688689` · RPC `https://atlantic.dplabs-internal.com`
+Each skill has its **own folder** with `README.md` + `SKILL.md`. Use the folder URL as the GitHub link in DoraHacks.
 
-**Builder:** Henry Sam Marfo · ATU Accra Ghana · [github.com/henrysammarfo](https://github.com/henrysammarfo)
+| Skill | Folder | Purpose |
+|-------|--------|---------|
+| [AgentCreditScore](skills/agentcreditscore/) | `skills/agentcreditscore/` | Soulbound identity + credit score 0–1000 |
+| [IntentVerifier](skills/intentverifier/) | `skills/intentverifier/` | Commit-reveal + EIP-712 accountability |
+| [x402PaymentChannel](skills/x402-payment-channel/) | `skills/x402-payment-channel/` | Signed micropayment channels + HTTP x402 |
+| [DarkPay](skills/darkpay/) | `skills/darkpay/` | ERC-5564 stealth payments |
+| [SpendGuard](skills/spendguard/) | `skills/spendguard/` | Credit-gated spending limits + custody |
+
+**Example GitHub link for BUIDL:**  
+`https://github.com/henrysammarfo/pharos-skills/tree/master/skills/spendguard`
+
+## Onboarding (judges & agents)
+
+```bash
+git clone https://github.com/henrysammarfo/pharos-skills.git
+cd pharos-skills
+./setup.sh          # macOS/Linux
+# or
+.\setup.ps1         # Windows
+```
+
+That's it. Setup installs deps, `forge install`, compiles, and runs **all tests**.
+
+### Read-only Atlantic check (no wallet)
+
+```bash
+npm run judge:readiness
+```
+
+### Full test suite
+
+```bash
+npm run test:all
+```
+
+### MCP agent integration
+
+```bash
+npm run mcp
+```
+
+Copy [`mcp-server/mcp-config.example.json`](mcp-server/mcp-config.example.json) into your agent MCP config.  
+17 tools covering all 5 skills. Read-only tools work with `deployments.example.json` only.
+
+### HTTP x402 (Pharos native protocol)
+
+```bash
+npm run x402:http
+curl -i http://localhost:4020/api/premium
+curl http://localhost:4020/health
+```
+
+Docs: https://docs.pharos.xyz/developer-guide/x402
 
 ## Architecture
 
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for diagrams, data flows, and composability.
+
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌──────────────────┐
-│ IntentVerifier  │────▶│ AgentCreditScore│◀────│ x402PayChannel   │
-│ commit/reveal   │     │ soulbound score │     │ signed micropay  │
-└─────────────────┘     └────────┬────────┘     └──────────────────┘
-                                 │
-                        ┌────────▼────────┐
-                        │     DarkPay     │
-                        │ stealth ECDH    │
-                        └─────────────────┘
+SpendGuard ──gates──► Agent ──► IntentVerifier ──► AgentCreditScore ◄── x402PaymentChannel
+                              └──► DarkPay
 ```
 
-## Quick start
+## Deployed contracts
 
-```bash
-npm install
-npm run compile
-forge build && forge test    # Foundry: 19 tests (smoke, fuzz, stress, security)
-npm test                     # Hardhat: 3 integration tests
-npm run deploy:atlantic    # requires funded wallet.json
-npm run integrate:atlantic # full cross-contract test on Atlantic
-npm run mcp                # MCP tool server for agents
-npm run x402:http          # HTTP 402 middleware
+Addresses and integration tx hashes: [`deployments.example.json`](deployments.example.json)
+
+| Contract | Atlantic address |
+|----------|------------------|
+| AgentCreditScore | `0x23Df05400d42122D2962C9ea60d469ba66FE3665` |
+| IntentVerifier | `0x9cC1A13782574c83f15c874551997Dc3cE3b15DF` |
+| x402PaymentChannel | `0xE16B0109D20C0f1977Dd821d285dd479Af0a9187` |
+| DarkPay | `0xF028782C1e4E3BdB19d31A31Db713d185a07b328` |
+| SpendGuard | `0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85` |
+
+Redeploy stack: `npm run deploy:atlantic` then `npm run integrate:atlantic` (requires funded `wallet.json`).
+
+Verify on Pharosscan: `PHAROSCAN_API_KEY=... npm run verify:atlantic`
+
+## Testing
+
+| Suite | Command | Coverage |
+|-------|---------|----------|
+| Forge | `forge test -vv` | Smoke, fuzz (256 runs), stress (50 intents), security |
+| Hardhat | `npm test` | Cross-contract integration |
+| Atlantic | `npm run integrate:atlantic` | Live testnet full stack |
+| Judge | `npm run judge:readiness` | Read-only RPC contract checks |
+
+## DoraHacks — 5 BUIDLs
+
+```powershell
+.\submit-all.ps1
 ```
 
-## Deployed addresses (Atlantic)
-
-See [`deployments.json`](deployments.json) for live addresses, deploy txs, and integration test hashes.
+Opens 5 submission tabs with per-skill GitHub folder links.
 
 ## Project structure
 
 ```
 pharos-skills/
-├── src/                    # Solidity contracts (hardened: ReentrancyGuard, sendValue)
-├── sdk/                    # TypeScript/JavaScript SDK
-├── skills/                 # Pharos Skill Engine SKILL.md per skill
-├── mcp-server/             # MCP tools for AI agents
-├── x402-http/              # HTTP 402 Payment Required middleware
-├── scripts/                # Deploy + integration scripts
-├── test/                   # Forge (PharosSkills.t.sol) + Hardhat (skills.test.js)
-└── deployments.json        # Live Atlantic addresses + tx hashes
+├── src/                     # 5 Solidity contracts + interfaces/
+├── skills/<name>/           # Per-skill README + SKILL.md (BUIDL links here)
+├── test/                    # Forge + Hardhat
+├── sdk/                     # JavaScript SDK (all skills)
+├── mcp-server/              # MCP tools for agent testing
+├── x402-http/               # HTTP 402 middleware
+├── scripts/                 # deploy, integrate, verify, judge-readiness
+├── ARCHITECTURE.md
+├── SECURITY.md
+└── deployments.example.json
 ```
 
 ## Security
 
-See [`SECURITY.md`](SECURITY.md) for the honest threat model. Hardening in v2:
+See [`SECURITY.md`](SECURITY.md). Hardened contracts with `ReentrancyGuard`, custom errors, soulbound NFT, EIP-712 intents, and SpendGuard policy engine. No formal audit — testnet only.
 
-- Custom errors, zero-address checks, `onlyRegisteredAgent` on ACS updates
-- `penalized` flag on IntentVerifier (prevents double-penalty)
-- `ReentrancyGuard` + `Address.sendValue` on payable flows
-- Shared `IAgentCreditScore` interface; soulbound ERC721 identity
-- 19 Forge tests + 3 Hardhat tests + live Atlantic integration verified
+## CI / GitHub Actions
 
-**No contract is unhackable.** Formal audit not performed — do not deploy to mainnet without one.
-
-## DoraHacks submissions
-
-Submit 4 separate BUIDLs — one per skill in `skills/*/SKILL.md`.
-
-Run `./submit-all.ps1` to open submission pages.
+**No GitHub Actions workflow** — removed intentionally (no billing card on account; workflows were failing). All quality gates run locally via `npm run test:all` and `setup.ps1` / `setup.sh`.
 
 ## Phase 2
 
-All four Skills combine into **NEXUS** — credit-enabled, verifiable, private AI economic agent.
+All five Skills compose into **NEXUS** — credit-enabled, accountable, private, spend-safe autonomous agent.
 
 ## License
 

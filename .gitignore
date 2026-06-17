@@ -13,6 +13,7 @@ lib/
 .env.*
 wallet.json
 deployments.json
+node_modules/
 
 # OS
 .DS_Store

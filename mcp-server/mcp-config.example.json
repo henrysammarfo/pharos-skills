@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "pharos-skills": {
+      "command": "node",
+      "args": ["mcp-server/index.js"],
+      "cwd": "ABSOLUTE_PATH_TO/pharos-skills",
+      "env": {
+        "DEPLOYMENTS_PATH": "deployments.example.json"
+      }
+    }
+  }
+}

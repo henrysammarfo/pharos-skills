@@ -16,11 +16,11 @@ ERC-5564 standard co-authored by Vitalik Buterin. First deployment on Pharos Atl
 
 ## Contract Address (Atlantic Testnet)
 
-DarkPay: `0x294919b4114Ac0Fe30F1551351655e016AC34eBa`
+DarkPay: `0xF028782C1e4E3BdB19d31A31Db713d185a07b328`
 
-Explorer: https://atlantic.pharosscan.xyz/address/0x294919b4114Ac0Fe30F1551351655e016AC34eBa
+Explorer: https://atlantic.pharosscan.xyz/address/0xF028782C1e4E3BdB19d31A31Db713d185a07b328
 
-Deploy tx: `0x5ebc60022ba12a7f8e6ba4449a1ae9fca35d85468001845f93f6689042fbecfb`
+Deploy tx: `0x3c388c1ed8f5d58c42cc29dda2c5275e714aa6941ebb6d5c69bcc81668cdd6d8`
 
 ## Step 1: Generate meta-address off-chain (receiver, once)
 
@@ -36,7 +36,7 @@ console.log('viewKey:', Buffer.from(keys.viewingPubKey).toString('hex'));
 ## Step 2: Register on-chain
 
 ```bash
-cast send 0x294919b4114Ac0Fe30F1551351655e016AC34eBa \
+cast send 0xF028782C1e4E3BdB19d31A31Db713d185a07b328 \
   "registerStealthMetaAddress(bytes,bytes)" \
   $SPEND_PUB_HEX $VIEW_PUB_HEX \
   --private-key $PRIVATE_KEY \
@@ -46,7 +46,7 @@ cast send 0x294919b4114Ac0Fe30F1551351655e016AC34eBa \
 ## Step 4: Send PHRS to stealth address
 
 ```bash
-cast send 0x294919b4114Ac0Fe30F1551351655e016AC34eBa \
+cast send 0xF028782C1e4E3BdB19d31A31Db713d185a07b328 \
   "sendNativeStealth(address,bytes,bytes)" \
   $STEALTH_ADDRESS $EPH_PUB_HEX $VIEW_TAG_HEX \
   --value 0.001ether \
@@ -56,7 +56,7 @@ cast send 0x294919b4114Ac0Fe30F1551351655e016AC34eBa \
 
 ## Verified integration
 
-- Register meta-address: `0x76bfd2df26ae46eaba9ff7ec303796a34020eb7f8ad36169e643b602c6c3e1b0`
-- Send native stealth: `0x91abfd817cc1f5effa3b0db9f592afb95d7a3ff9612d4004c782d0d33aefe8f8`
+- Register meta-address: `0xdc9a51fdfddc35707e9c28f6c31898c05deb62bfe5691784573c217cb44c8693`
+- Send native stealth: `0x8f2527e50854b242ca3c1a0d349dcbdef04b42bc2d145c2f117e8b265d392085`
 - Announcement scan matched: **true**
 - Stealth privkey derived successfully on Atlantic

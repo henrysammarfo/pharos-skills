@@ -8,11 +8,14 @@ import "../src/IntentVerifier.sol";
 import "../src/x402PaymentChannel.sol";
 import "../src/DarkPay.sol";
 
+import "../src/SpendGuard.sol";
+
 contract PharosSkillsTest is Test {
     AgentCreditScore internal acs;
     IntentVerifier internal iv;
     x402PaymentChannel internal x402;
     DarkPay internal dp;
+    SpendGuard internal sg;
 
     uint256 internal agentKey = 0xA11CE;
     uint256 internal providerKey = 0xB0B;
@@ -47,8 +50,11 @@ contract PharosSkillsTest is Test {
         iv = new IntentVerifier(address(acs));
         x402 = new x402PaymentChannel(address(acs));
         dp = new DarkPay();
+        sg = new SpendGuard(address(acs));
         acs.addSkill(address(iv));
         acs.addSkill(address(x402));
+        sg.setIntentVerifier(address(iv));
+        sg.setExecutor(address(x402), true);
     }
 
     // ─── Smoke tests ───────────────────────────────────────────────
@@ -57,6 +63,7 @@ contract PharosSkillsTest is Test {
         assertTrue(address(acs) != address(0));
         assertEq(address(iv.creditScore()), address(acs));
         assertEq(address(x402.creditScore()), address(acs));
+        assertEq(address(sg.creditScore()), address(acs));
     }
 
     function test_smoke_fullStackFlow() public {
@@ -179,6 +186,72 @@ contract PharosSkillsTest is Test {
         iv.commitIntent(keccak256("x"));
         vm.expectRevert(IntentVerifier.StillInWindow.selector);
         iv.penalizeUnrevealedIntent(agent, 0);
+    }
+
+    function test_intent_eip712_commitReveal() public {
+        vm.startPrank(agent);
+        acs.registerAgent();
+        bytes32 typed = iv.computeHashEIP712("SWAP", "eip712 path", bytes32(uint256(9)), 7);
+        iv.commitIntentEIP712(typed);
+        iv.revealIntent(0, "SWAP", "eip712 path", bytes32(uint256(9)), 7);
+        assertTrue(iv.isVerifiedIntent(agent, 0));
+        vm.stopPrank();
+    }
+
+    // ─── SpendGuard ────────────────────────────────────────────────
+
+    function _setupSpendPolicy(address recipient) internal {
+        vm.startPrank(agent);
+        acs.registerAgent();
+        sg.createPolicy(agent, 1 ether, 0.1 ether, 0, 0.05 ether, true);
+        sg.setWhitelist(agent, recipient, true);
+        sg.deposit{value: 0.5 ether}();
+        vm.stopPrank();
+    }
+
+    function test_spendguard_depositAndSpend() public {
+        _setupSpendPolicy(provider);
+        uint256 before = provider.balance;
+        vm.prank(agent);
+        sg.guardedSpend(provider, 0.01 ether, 0);
+        assertEq(provider.balance, before + 0.01 ether);
+    }
+
+    function test_spendguard_largeRequiresIntent() public {
+        _setupSpendPolicy(provider);
+        vm.startPrank(agent);
+        bytes32 hash = iv.computeHash("PAY", "large", bytes32(uint256(1)), 1);
+        iv.commitIntent(hash);
+        vm.expectRevert(abi.encodeWithSelector(SpendGuard.SpendCheckFailed.selector, bytes32("INTENT_REQUIRED")));
+        sg.guardedSpend(provider, 0.08 ether, 0);
+        vm.stopPrank();
+    }
+
+    function test_spendguard_largeWithVerifiedIntent() public {
+        _setupSpendPolicy(provider);
+        vm.startPrank(agent);
+        bytes32 hash = iv.computeHash("PAY", "large", bytes32(uint256(1)), 1);
+        iv.commitIntent(hash);
+        iv.revealIntent(0, "PAY", "large", bytes32(uint256(1)), 1);
+        sg.guardedSpend(provider, 0.08 ether, 0);
+        vm.stopPrank();
+    }
+
+    function test_spendguard_notWhitelistedReverts() public {
+        vm.startPrank(agent);
+        acs.registerAgent();
+        sg.createPolicy(agent, 1 ether, 0.1 ether, 0, 1 ether, false);
+        sg.deposit{value: 0.1 ether}();
+        vm.expectRevert(abi.encodeWithSelector(SpendGuard.SpendCheckFailed.selector, bytes32("NOT_WHITELISTED")));
+        sg.guardedSpend(provider, 0.01 ether, 0);
+        vm.stopPrank();
+    }
+
+    function testFuzz_spendguard_respectsPerTx(uint96 amount) public {
+        amount = uint96(bound(uint256(amount), 1, 0.04 ether));
+        _setupSpendPolicy(provider);
+        vm.prank(agent);
+        sg.guardedSpend(provider, amount, 0);
     }
 
     // ─── x402PaymentChannel ────────────────────────────────────────

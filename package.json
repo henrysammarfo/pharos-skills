@@ -1,7 +1,7 @@
 {
   "name": "pharos-skills",
-  "version": "1.0.0",
-  "description": "Pharos AI Agent Trust Infrastructure Stack — Phase 1 hackathon submission",
+  "version": "2.0.0",
+  "description": "Pharos AI Agent Trust Infrastructure — 5 composable Skills on Atlantic Testnet",
   "author": "Henry Sam Marfo <https://github.com/henrysammarfo>",
   "license": "MIT",
   "repository": {
@@ -15,13 +15,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "setup": "node -e \"console.log('Windows: .\\\\setup.ps1 | Unix: ./setup.sh')\"",
     "compile": "hardhat compile",
     "test": "hardhat test",
     "test:forge": "forge test -vv",
-    "test:all": "npm run compile && npm test && npm run test:forge",
+    "test:all": "forge build && forge test && npm run compile && npm test",
     "build": "forge build && npm run compile",
     "deploy:atlantic": "node scripts/deploy-atlantic.mjs",
     "integrate:atlantic": "node scripts/integrate-atlantic.mjs",
+    "verify:atlantic": "node scripts/verify-atlantic.mjs",
+    "judge:readiness": "node scripts/judge-readiness.mjs",
     "mcp": "node mcp-server/index.js",
     "x402:http": "node x402-http/server.js"
   },
