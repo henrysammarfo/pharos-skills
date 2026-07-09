@@ -10,7 +10,7 @@ cd C:\Users\RICHEY_SON\pharos-skills
 .\nexus-service-agent\scripts\package-anvita-zip.ps1
 ```
 
-Produces `nexus-service-agent/dist/nexus-trust-agent-anvita.zip` with **`SKILL.md` at zip root**.
+Produces `nexus-service-agent/dist/nexus-trust-agent-anvita.zip` with **`nexus-trust-agent/SKILL.md`** inside (Anvita-required layout).
 
 ## Agent Card fields (copy from `agent-card.json`)
 

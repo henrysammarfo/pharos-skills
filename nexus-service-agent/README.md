@@ -8,7 +8,7 @@ Composes all five verified Atlantic Testnet Skills into one Anvita-uploadable pa
 
 | Path | Purpose |
 |------|---------|
-| `SKILL.md` | **Zip root manifest** for Anvita upload |
+| `SKILL.md` | **Anvita manifest** (`nexus-trust-agent/SKILL.md` inside zip) |
 | `agent-card.json` | Console fill-in fields |
 | `deployments.json` | Contract addresses |
 | `runtime/handler.mjs` | Request router (read-only RPC) |
