@@ -1,0 +1,62 @@
+{
+  "name": "NEXUS Trust Agent",
+  "slug": "nexus-trust-agent",
+  "version": "1.0.0",
+  "description": "Unified Pharos Service Agent composing all five verified Trust Stack Skills — credit scoring, intent verification, x402 micropayments, stealth transfers, and spend policy enforcement on Atlantic Testnet.",
+  "author": {
+    "name": "Henry Sam Marfo",
+    "github": "https://github.com/henrysammarfo",
+    "repository": "https://github.com/henrysammarfo/pharos-skills"
+  },
+  "network": {
+    "name": "Pharos Atlantic Testnet",
+    "chainId": 688689,
+    "rpc": "https://atlantic.dplabs-internal.com",
+    "explorer": "https://atlantic.pharosscan.xyz"
+  },
+  "skills": [
+  {
+    "name": "AgentCreditScore",
+    "address": "0x23Df05400d42122D2962C9ea60d469ba66FE3665",
+    "role": "Trust identity and credit tiers"
+  },
+  {
+    "name": "IntentVerifier",
+    "address": "0x9cC1A13782574c83f15c874551997Dc3cE3b15DF",
+    "role": "Commit-reveal and EIP-712 accountability"
+  },
+  {
+    "name": "x402PaymentChannel",
+    "address": "0xE16B0109D20C0f1977Dd821d285dd479Af0a9187",
+    "role": "Collateral channels and signed micropayments"
+  },
+  {
+    "name": "DarkPay",
+    "address": "0xF028782C1e4E3BdB19d31A31Db713d185a07b328",
+    "role": "ERC-5564 stealth address payments"
+  },
+  {
+    "name": "SpendGuard",
+    "address": "0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85",
+    "role": "Custodial limits and intent-gated spending"
+  }
+  ],
+  "exampleTasks": [
+    "Register my agent and return its credit score",
+    "Commit and verify an intent before a large trade",
+    "Open an x402 payment channel and sign a micropayment",
+    "Send a private stealth payment on Pharos",
+    "Check whether a spend is allowed under SpendGuard policy",
+    "Return full trust stack status for an agent address"
+  ],
+  "tags": ["trust", "credit", "x402", "stealth", "spend-guard", "pharos", "atlantic"],
+  "documentation": {
+    "architecture": "https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md",
+    "skill": "SKILL.md",
+    "landing": "landing/"
+  },
+  "pricing": {
+    "model": "x402 per-call when Anvita payment module is live",
+    "testnet": "Read-only queries free on Atlantic"
+  }
+}
