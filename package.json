@@ -30,7 +30,7 @@
     "test:agent": "node scripts/test-sdk.mjs --wallet && node scripts/test-mcp.mjs --wallet",
     "mcp": "node mcp-server/index.js",
     "x402:http": "node x402-http/server.js",
-    "nexus:package": "powershell -ExecutionPolicy Bypass -File nexus-service-agent/scripts/package-anvita-zip.ps1",
+    "nexus:package": "node nexus-service-agent/scripts/package-anvita-zip.mjs",
     "nexus:landing": "npm run dev --prefix nexus-service-agent/landing",
     "nexus:landing:build": "npm run build --prefix nexus-service-agent/landing"
   },

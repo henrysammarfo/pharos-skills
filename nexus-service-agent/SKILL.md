@@ -1,11 +1,6 @@
 ---
 name: nexus-trust-agent
-description: >-
-  NEXUS — unified Pharos Service Agent composing AgentCreditScore, IntentVerifier,
-  x402PaymentChannel, DarkPay, and SpendGuard. Provides trust scoring, intent
-  accountability, x402 micropayments, stealth transfers, and spend-policy enforcement
-  on Atlantic Testnet (chainId 688689). Use when a steward or client agent needs the
-  full Pharos Trust Stack through one callable service.
+description: Unified Pharos Service Agent composing AgentCreditScore, IntentVerifier, x402PaymentChannel, DarkPay, and SpendGuard. Use when an agent needs trust scoring, intent verification, micropayments, stealth transfers, or spend-policy checks on Atlantic Testnet chainId 688689.
 ---
 
 # SKILL: NEXUS Trust Agent

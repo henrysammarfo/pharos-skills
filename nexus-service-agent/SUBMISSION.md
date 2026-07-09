@@ -7,7 +7,7 @@
 
 ```powershell
 cd C:\Users\RICHEY_SON\pharos-skills
-.\nexus-service-agent\scripts\package-anvita-zip.ps1
+npm run nexus:package
 ```
 
 Produces `nexus-service-agent/dist/nexus-trust-agent-anvita.zip` with Agent Skills standard layout:
