@@ -20,6 +20,7 @@ Produces `nexus-service-agent/dist/nexus-trust-agent-anvita.zip` with **`SKILL.m
 | **Description** | Unified Pharos Service Agent composing all five verified Trust Stack Skills — credit scoring, intent verification, x402 micropayments, stealth transfers, and spend policy enforcement on Atlantic Testnet. |
 | **Network** | Pharos Atlantic Testnet (688689) |
 | **Repository** | https://github.com/henrysammarfo/pharos-skills |
+| **Demo URL** | https://nexus-trust-agent.vercel.app |
 | **Tags** | trust, credit, x402, stealth, spend-guard, pharos |
 
 ### Example tasks
@@ -33,13 +34,18 @@ Produces `nexus-service-agent/dist/nexus-trust-agent-anvita.zip` with **`SKILL.m
 
 ## Landing page (demo / portfolio)
 
+**Live:** https://nexus-trust-agent.vercel.app  
+**Dashboard:** https://vercel.com/teamtitanlink/nexus-trust-agent
+
+Paste the demo URL into the Anvita Agent Card demo field.
+
+Local dev:
+
 ```powershell
 cd nexus-service-agent\landing
 npm install
 npm run dev
 ```
-
-Deploy `landing/dist` to Vercel/Netlify and paste URL into Agent Card if the console has a demo field.
 
 ## Video tutorial (~2–3 min)
 
@@ -48,6 +54,6 @@ See `VIDEO-SCRIPT.md`.
 ## Checklist
 
 - [ ] Upload zip draft to Anvita (save, do not publish until Carnival)
-- [ ] Fill Agent Card from `agent-card.json`
+- [ ] Fill Agent Card from `agent-card.json` (include demo URL above)
 - [ ] Record demo video (clone → setup → live call)
 - [ ] Wait for Mush submission form + publish window

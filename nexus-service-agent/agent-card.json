@@ -50,10 +50,12 @@
     "Return full trust stack status for an agent address"
   ],
   "tags": ["trust", "credit", "x402", "stealth", "spend-guard", "pharos", "atlantic"],
+  "demoUrl": "https://nexus-trust-agent.vercel.app",
   "documentation": {
     "architecture": "https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md",
     "skill": "SKILL.md",
-    "landing": "landing/"
+    "landing": "https://nexus-trust-agent.vercel.app",
+    "vercelDashboard": "https://vercel.com/teamtitanlink/nexus-trust-agent"
   },
   "pricing": {
     "model": "x402 per-call when Anvita payment module is live",
