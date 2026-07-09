@@ -8,10 +8,10 @@ Composes all five verified Atlantic Testnet Skills into one Anvita-uploadable pa
 
 | Path | Purpose |
 |------|---------|
-| `SKILL.md` | **Anvita manifest** (`nexus-trust-agent/SKILL.md` inside zip) |
-| `agent-card.json` | Console fill-in fields |
-| `deployments.json` | Contract addresses |
-| `runtime/handler.mjs` | Request router (read-only RPC) |
+| `SKILL.md` | Anvita manifest (execution, client flow, delivery standards) |
+| `scripts/` | `handler.mjs`, `status.mjs` |
+| `references/` | Contract addresses and composability flows |
+| `assets/` | Agent card metadata |
 | `landing/` | React 19 hero landing page |
 | `SUBMISSION.md` | Upload checklist |
 | `VIDEO-SCRIPT.md` | Demo video outline |
@@ -35,7 +35,7 @@ npm run dev
 ## Runtime test
 
 ```bash
-node -e "import('./runtime/handler.mjs').then(m => m.handleRequest({ task: 'full stack status', agent: '0xCC7cE09579EF39848ddddc36421CeB0F665096dC' }).then(console.log))"
+node -e "import('./scripts/handler.mjs').then(m => m.handleRequest({ task: 'full stack status', agent: '0xCC7cE09579EF39848ddddc36421CeB0F665096dC' }).then(console.log))"
 ```
 
 Full SDK/MCP: parent repo `npm run test:agent`.

@@ -1,6 +1,5 @@
 /**
  * NEXUS Trust Agent — request router for Service Agent invocations.
- * Delegates to parent repo SDK when available; falls back to read-only RPC.
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -57,12 +56,11 @@ export async function handleRequest(input) {
     ]);
     return {
       ok: true,
+      service: "nexus-trust-agent",
       skill: "AgentCreditScore",
       agent,
-      registered,
-      score: score.toString(),
-      creditLimit: limit.toString(),
-      contract: addresses.AgentCreditScore,
+      data: { registered, score: score.toString(), creditLimitWei: limit.toString() },
+      contracts: { AgentCreditScore: addresses.AgentCreditScore },
     };
   }
 
@@ -71,11 +69,11 @@ export async function handleRequest(input) {
     const verified = await iv.isVerifiedIntent(agent, intentId);
     return {
       ok: true,
+      service: "nexus-trust-agent",
       skill: "IntentVerifier",
       agent,
-      intentId,
-      verified,
-      contract: addresses.IntentVerifier,
+      data: { intentId, verified },
+      contracts: { IntentVerifier: addresses.IntentVerifier },
     };
   }
 
@@ -86,14 +84,11 @@ export async function handleRequest(input) {
     const [allowed, reason] = await sg.canSpend(agent, recipient, amountWei, intentId);
     return {
       ok: true,
+      service: "nexus-trust-agent",
       skill: "SpendGuard",
       agent,
-      recipient,
-      amountWei,
-      intentId,
-      allowed,
-      reason,
-      contract: addresses.SpendGuard,
+      data: { recipient, amountWei, intentId, allowed, reason },
+      contracts: { SpendGuard: addresses.SpendGuard },
     };
   }
 
@@ -105,20 +100,24 @@ export async function handleRequest(input) {
     ]);
     return {
       ok: true,
+      service: "nexus-trust-agent",
       agent,
-      stack: "NEXUS",
-      skills: addresses,
-      credit: { registered, score: score.toString(), limit: limit.toString() },
-      docs: "https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md",
+      data: {
+        stack: "NEXUS",
+        credit: { registered, score: score.toString(), creditLimitWei: limit.toString() },
+        skills: addresses,
+      },
+      message: "Full trust stack status",
     };
   }
 
   if (task.includes("x402") || task.includes("channel") || task.includes("payment")) {
     return {
       ok: true,
+      service: "nexus-trust-agent",
       skill: "x402PaymentChannel",
-      message: "Use parent repo SDK: openChannelWithFundedProvider",
-      contract: addresses.x402PaymentChannel,
+      data: { message: "Use parent repo SDK: openChannelWithFundedProvider" },
+      contracts: { x402PaymentChannel: addresses.x402PaymentChannel },
       repo: "https://github.com/henrysammarfo/pharos-skills",
     };
   }
@@ -126,15 +125,17 @@ export async function handleRequest(input) {
   if (task.includes("stealth") || task.includes("dark") || task.includes("private")) {
     return {
       ok: true,
+      service: "nexus-trust-agent",
       skill: "DarkPay",
-      message: "Use parent repo SDK DarkPayChainSDK for stealth flows",
-      contract: addresses.DarkPay,
+      data: { message: "Use parent repo SDK DarkPayChainSDK for stealth flows" },
+      contracts: { DarkPay: addresses.DarkPay },
       repo: "https://github.com/henrysammarfo/pharos-skills",
     };
   }
 
   return {
     ok: false,
+    service: "nexus-trust-agent",
     error: "Unknown task",
     hint: "Try: credit score, verify intent, spend policy, full stack status",
     exampleTasks: [
