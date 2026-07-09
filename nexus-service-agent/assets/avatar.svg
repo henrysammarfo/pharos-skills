@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="96" fill="#FFFFFF"/>
+  <rect x="96" y="176" width="200" height="72" rx="36" fill="#000000" transform="rotate(-35 196 212)"/>
+  <rect x="216" y="264" width="200" height="72" rx="36" fill="#000000" transform="rotate(-35 316 300)"/>
+  <text x="256" y="448" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="48" font-weight="600" fill="#000000">NEXUS</text>
+</svg>
