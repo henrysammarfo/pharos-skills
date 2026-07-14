@@ -1,64 +1,75 @@
 {
   "name": "NEXUS Trust Agent",
   "slug": "nexus-trust-agent",
-  "version": "1.0.0",
-  "description": "Unified Pharos Service Agent composing all five verified Trust Stack Skills — credit scoring, intent verification, x402 micropayments, stealth transfers, and spend policy enforcement on Atlantic Testnet.",
+  "version": "2.0.0",
+  "description": "Everyday trust checks for AI agents on Pharos Pacific Mainnet — credit, intent, safe spends, and private payments in one call.",
   "author": {
     "name": "Henry Sam Marfo",
     "github": "https://github.com/henrysammarfo",
     "repository": "https://github.com/henrysammarfo/pharos-skills"
   },
   "network": {
-    "name": "Pharos Atlantic Testnet",
-    "chainId": 688689,
-    "rpc": "https://atlantic.dplabs-internal.com",
-    "explorer": "https://atlantic.pharosscan.xyz"
+    "name": "Pharos Pacific Mainnet",
+    "chainId": 1672,
+    "rpc": "https://rpc.pharos.xyz",
+    "explorer": "https://pharosscan.xyz"
+  },
+  "pricing": {
+    "unitPriceUsd": 0.02,
+    "model": "x402 per-call",
+    "currency": "USD"
   },
   "skills": [
-  {
-    "name": "AgentCreditScore",
-    "address": "0x23Df05400d42122D2962C9ea60d469ba66FE3665",
-    "role": "Trust identity and credit tiers"
-  },
-  {
-    "name": "IntentVerifier",
-    "address": "0x9cC1A13782574c83f15c874551997Dc3cE3b15DF",
-    "role": "Commit-reveal and EIP-712 accountability"
-  },
-  {
-    "name": "x402PaymentChannel",
-    "address": "0xE16B0109D20C0f1977Dd821d285dd479Af0a9187",
-    "role": "Collateral channels and signed micropayments"
-  },
-  {
-    "name": "DarkPay",
-    "address": "0xF028782C1e4E3BdB19d31A31Db713d185a07b328",
-    "role": "ERC-5564 stealth address payments"
-  },
-  {
-    "name": "SpendGuard",
-    "address": "0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85",
-    "role": "Custodial limits and intent-gated spending"
-  }
+    {
+      "name": "AgentCreditScore",
+      "address": "0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7",
+      "role": "Trust identity and credit tiers"
+    },
+    {
+      "name": "IntentVerifier",
+      "address": "0x591Fc32E84fd66e335dC1509d09A09af156df355",
+      "role": "Commit-reveal and EIP-712 accountability"
+    },
+    {
+      "name": "x402PaymentChannel",
+      "address": "0x4cfD9F5cfEA425e8A533a7679559825464121b83",
+      "role": "Collateral channels and signed micropayments"
+    },
+    {
+      "name": "DarkPay",
+      "address": "0x58Bd7bafD2390fD6661A44D104f5296973804793",
+      "role": "ERC-5564 stealth address payments"
+    },
+    {
+      "name": "SpendGuard",
+      "address": "0x25DA2D8AC4b14B575930029d105a583AE6630bC8",
+      "role": "Custodial limits and intent-gated spending"
+    }
   ],
   "exampleTasks": [
-    "Register my agent and return its credit score",
-    "Commit and verify an intent before a large trade",
-    "Open an x402 payment channel and sign a micropayment",
-    "Send a private stealth payment on Pharos",
-    "Check whether a spend is allowed under SpendGuard policy",
-    "Return full trust stack status for an agent address"
+    "Check if this agent is trusted enough to pay me",
+    "Is this spend safe under my policy?",
+    "Verify my intent before I send funds",
+    "Show my credit score and limit on Pharos",
+    "Send a private stealth payment",
+    "Full trust stack status for my wallet"
   ],
-  "tags": ["trust", "credit", "x402", "stealth", "spend-guard", "pharos", "atlantic"],
+  "tags": [
+    "trust",
+    "credit",
+    "spend-safe",
+    "x402",
+    "stealth",
+    "everyday",
+    "pharos",
+    "pacific",
+    "mainnet"
+  ],
   "demoUrl": "https://nexus-trust-agent.vercel.app",
   "documentation": {
     "architecture": "https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md",
     "skill": "SKILL.md",
     "landing": "https://nexus-trust-agent.vercel.app",
-    "vercelDashboard": "https://vercel.com/teamtitanlink/nexus-trust-agent"
-  },
-  "pricing": {
-    "model": "x402 per-call when Anvita payment module is live",
-    "testnet": "Read-only queries free on Atlantic"
+    "funding": "FUNDING-MAINNET.md"
   }
 }

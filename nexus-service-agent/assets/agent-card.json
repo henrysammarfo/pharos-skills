@@ -2,5 +2,8 @@
   "name": "NEXUS Trust Agent",
   "slug": "nexus-trust-agent",
   "demoUrl": "https://nexus-trust-agent.vercel.app",
+  "unitPriceUsd": 0.02,
+  "network": "Pharos Pacific Mainnet",
+  "chainId": 1672,
   "repository": "https://github.com/henrysammarfo/pharos-skills"
 }

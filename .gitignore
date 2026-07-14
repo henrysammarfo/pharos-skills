@@ -12,7 +12,9 @@ lib/
 .env
 .env.*
 wallet.json
+wallet.mainnet.json
 deployments.json
+deployments.mainnet.json
 node_modules/
 
 # OS

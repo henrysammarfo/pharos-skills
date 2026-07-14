@@ -12,7 +12,10 @@ const deployments = JSON.parse(
 );
 
 const RPC = process.env.RPC || deployments.rpc;
-const provider = new ethers.JsonRpcProvider(RPC);
+const CHAIN_ID = Number(process.env.CHAIN_ID || deployments.chainId || 1672);
+const provider = new ethers.JsonRpcProvider(RPC, CHAIN_ID, {
+  staticNetwork: true,
+});
 
 const ACS_ABI = [
   "function scores(address) view returns (uint256)",

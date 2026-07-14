@@ -1,200 +1,153 @@
 ---
 name: nexus-trust-agent
-description: Unified Pharos Service Agent composing AgentCreditScore, IntentVerifier, x402PaymentChannel, DarkPay, and SpendGuard. Use when an agent needs trust scoring, intent verification, micropayments, stealth transfers, or spend-policy checks on Atlantic Testnet chainId 688689.
+description: Everyday trust co-pilot for AI agents on Pharos Pacific Mainnet. Check credit scores, verify intents before sending funds, enforce spend policies, open x402 micropayments, and send private stealth transfers — all in one Service Agent. Use when a user asks if an agent is trusted, if a spend is safe, or needs private payments on chainId 1672.
 ---
 
 # SKILL: NEXUS Trust Agent
 
 ## Description
 
-NEXUS is a Phase 2 Service Agent that composes five verified on-chain Pharos Skills into one trust infrastructure endpoint. It routes client requests to the correct Skill, enforces safe execution order for high-risk operations, and returns structured results with Atlantic explorer links.
+NEXUS is your everyday trust layer for autonomous agents on **Pharos Pacific Mainnet**. One call answers the questions people actually ask:
 
-| Layer | Skill | Capability |
-|-------|-------|------------|
-| Trust | AgentCreditScore | Soulbound identity, score 0–1000, credit tiers |
-| Accountability | IntentVerifier | Commit-reveal + EIP-712 typed intents |
-| Payments | x402PaymentChannel | Collateral channels, signed micropayments |
-| Privacy | DarkPay | ERC-5564 stealth address payments |
-| Safety | SpendGuard | Custodial limits, whitelist, intent-gated spends |
+- Is this agent trusted enough to pay me?
+- Is this spend safe under my policy?
+- Has my intent been verified before I send funds?
+- What's my credit score and limit?
+- Can I pay privately?
 
-**Network:** Pharos Atlantic Testnet · chainId `688689`  
-**RPC:** `https://atlantic.dplabs-internal.com`  
-**Explorer:** `https://atlantic.pharosscan.xyz`  
-**Repository:** `https://github.com/henrysammarfo/pharos-skills`  
-**Demo:** `https://nexus-trust-agent.vercel.app`
+It composes five verified on-chain Skills into one safe endpoint.
+
+| Layer | Skill | Everyday use |
+|-------|-------|--------------|
+| Trust | AgentCreditScore | Score 0–1000, registration, credit limit |
+| Accountability | IntentVerifier | Verify intent before high-value actions |
+| Payments | x402PaymentChannel | Micropayment channels |
+| Privacy | DarkPay | Stealth / private native transfers |
+| Safety | SpendGuard | Policy gate before any custodial spend |
+
+**Network:** Pharos Pacific Mainnet · chainId `1672`  
+**RPC:** `https://rpc.pharos.xyz`  
+**Explorer:** `https://pharosscan.xyz`  
+**Price:** **$0.02 per call** (x402)  
+**Demo:** `https://nexus-trust-agent.vercel.app`  
+**Repository:** `https://github.com/henrysammarfo/pharos-skills`
 
 ## Execution Instructions
 
 ### 1. Classify the request
 
-Map the client task to one or more Skills:
-
-| Intent keywords | Target Skill | Action |
-|-----------------|--------------|--------|
-| credit, score, register, trust, limit | AgentCreditScore | `scores`, `getCreditLimit`, `isRegistered` |
-| intent, commit, reveal, verify, accountability | IntentVerifier | `isVerifiedIntent`, commit/reveal flows |
-| x402, channel, micropayment, settle | x402PaymentChannel | open channel, sign payment, settle |
-| stealth, private, dark, ERC-5564 | DarkPay | meta-address registration, stealth send |
-| spend, policy, guard, whitelist, allowed | SpendGuard | `canSpend` before any custodial spend |
-| status, stack, overview, full | All five | Aggregate read-only status |
+| Intent keywords | Target Skill |
+|-----------------|--------------|
+| credit, score, trusted, register, limit | AgentCreditScore |
+| intent, verify, before I send, accountability | IntentVerifier |
+| x402, channel, micropayment | x402PaymentChannel |
+| stealth, private, dark | DarkPay |
+| spend, safe, policy, guard, allowed | SpendGuard |
+| status, stack, overview, full | All five (aggregate) |
 
 ### 2. Gather required inputs
 
-| Operation | Required inputs |
-|-----------|-----------------|
-| Credit read | `agent` address (0x…) |
-| Intent verify | `agent`, `intentId` (uint256) |
+| Operation | Required |
+|-----------|----------|
+| Credit / full stack | `agent` address (0x…) |
+| Intent verify | `agent`, `intentId` |
 | Spend check | `agent`, `recipient`, `amountWei`, `intentId` |
-| Full stack | `agent` address |
-| Write operations | Above + explicit user confirmation; wallet funds on Atlantic |
+| Writes | Above + explicit user confirmation |
 
-Reject or clarify if any required field is missing or malformed.
+### 3. Safe execution order (never skip for payments)
 
-### 3. Safe execution order (high-risk flows)
+1. **AgentCreditScore** — registered? score/limit OK?
+2. **IntentVerifier** — verified intent when amount is material
+3. **SpendGuard** — `canSpend` must pass
+4. **x402 or DarkPay** — execute only after 1–3
 
-For spends, trades, or large transfers, always execute in order:
+Read-only queries may stop after the relevant Skill.
 
-1. **AgentCreditScore** — confirm agent is registered; score and credit limit are sufficient.
-2. **IntentVerifier** — if amount exceeds policy threshold, require verified intent (`isVerifiedIntent` returns true).
-3. **SpendGuard** — call `canSpend(agent, recipient, amount, intentId)`; abort if false.
-4. **x402PaymentChannel** or **DarkPay** — execute payment only after steps 1–3 pass.
-
-Read-only queries may skip steps 3–4.
-
-### 4. On-chain reads (no wallet)
-
-Use Atlantic RPC `eth_call` against deployed contracts:
+### 4. On-chain contracts (Pacific Mainnet)
 
 | Contract | Address |
 |----------|---------|
-| AgentCreditScore | `0x23Df05400d42122D2962C9ea60d469ba66FE3665` |
-| IntentVerifier | `0x9cC1A13782574c83f15c874551997Dc3cE3b15DF` |
-| x402PaymentChannel | `0xE16B0109D20C0f1977Dd821d285dd479Af0a9187` |
-| DarkPay | `0xF028782C1e4E3BdB19d31A31Db713d185a07b328` |
-| SpendGuard | `0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85` |
+| AgentCreditScore | `0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7` |
+| IntentVerifier | `0x591Fc32E84fd66e335dC1509d09A09af156df355` |
+| x402PaymentChannel | `0x4cfD9F5cfEA425e8A533a7679559825464121b83` |
+| DarkPay | `0x58Bd7bafD2390fD6661A44D104f5296973804793` |
+| SpendGuard | `0x25DA2D8AC4b14B575930029d105a583AE6630bC8` |
 
-Example read — credit score:
+Example credit read:
 
 ```bash
-cast call 0x23Df05400d42122D2962C9ea60d469ba66FE3665 "scores(address)" $AGENT \
-  --rpc-url https://atlantic.dplabs-internal.com
+cast call 0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7 "scores(address)" $AGENT --rpc-url https://rpc.pharos.xyz
 ```
 
-### 5. On-chain writes (wallet required)
+### 5. Writes
 
-For registration, intent commit/reveal, channel open, stealth send, or SpendGuard spend:
-
-- Confirm the user intends a **write** operation and understands gas cost on Atlantic testnet.
-- Never ask for or store seed phrases; user supplies signing through their own wallet or SDK.
-- Point advanced integrators to `scripts/handler.mjs` and the parent repo SDK/MCP (`npm run test:agent`).
+- Confirm the user wants an on-chain transaction on Pacific Mainnet.
+- Never request seed phrases or private keys.
+- Prefer read-first; writes only after confirmation.
 
 ### 6. Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/handler.mjs` | Routes structured `{ task, agent, ... }` requests to RPC reads |
-| `scripts/status.mjs` | CLI: full stack status for one agent address |
+| `scripts/handler.mjs` | Route `{ task, agent, ... }` to RPC |
+| `scripts/status.mjs` | CLI full-stack status |
 
-See `references/contracts.md` and `references/flows.md` for contract ABIs and sequence diagrams.
+See `references/contracts.md` and `references/flows.md`.
 
 ## Client Interaction Flow
 
 ### Clarification
 
-Before executing, clarify ambiguous requests:
-
-- **“Check my agent”** → Ask: full stack status, credit score only, or spend policy?
-- **“Send payment”** → Ask: x402 micropayment or DarkPay stealth? Amount and recipient?
-- **“Large trade”** → Ask: has intent been committed and revealed? Provide `intentId`.
-- **Missing address** → Ask: “Please provide the agent wallet address (0x…).”
-
-If the task spans multiple Skills, state the planned sequence and get confirmation before writes.
+- Missing address → ask for Pacific Mainnet `0x` wallet.
+- Ambiguous → clarify: trust check, spend safety, intent, or full stack?
+- Payment request → confirm amount, recipient, and privacy (x402 vs stealth).
 
 ### Input Gathering
 
-Collect inputs in this order:
-
-1. **Task type** — one of the supported example tasks or a clear paraphrase.
-2. **Agent address** — required for all operations.
-3. **Operation-specific fields** — recipient, amount (wei or PHRS with conversion), intentId.
-4. **Risk acknowledgement** — for writes: “This will submit an on-chain transaction on Atlantic testnet. Proceed?”
-
-Validate:
-
-- Addresses are 42-character hex starting with `0x`.
-- Amounts are positive integers in wei when calling `canSpend`.
-- `intentId` is a non-negative integer string.
+1. Task type (everyday phrasing OK)
+2. Agent address
+3. Operation fields (recipient, amountWei, intentId)
+4. Write acknowledgement when needed
 
 ### Delivery Confirmation
 
-Before returning the final answer:
-
-1. Summarize what was checked or executed (which Skills, which contracts).
-2. Present results in the standard JSON format (see below).
-3. Include Pharosscan links for any transaction hashes.
-4. For read-only success, end with: **“NEXUS trust check complete. Need anything else?”**
-5. For writes, end with: **“Transaction submitted. Verify on explorer before relying on state.”**
-
-If a step failed, explain which Skill blocked the flow and what the client should do next (e.g. register agent, commit intent, deposit to SpendGuard).
+1. Name the Skill(s) used
+2. Return standard JSON
+3. Include Pharosscan links
+4. End with a clear next step
 
 ## Delivery Standards and Output Format
 
-### Standards
+- Always state Skill + contract address + explorer URL
+- Pacific Mainnet only (chainId 1672)
+- No keys, seeds, or `.env` in responses
+- Price context: $0.02 per Anvita call via x402
 
-- Always state **which Skill(s)** handled the request and **why**.
-- Prefer **read-only** RPC on Atlantic for debugging; never fabricate scores or tx hashes.
-- Include **contract address** and **explorer URL** for every on-chain reference.
-- Atlantic testnet only — do not claim mainnet deployment.
-- No private keys, `.env` values, or seed phrases in responses.
-- Link to architecture docs for deep dives: `references/flows.md` or GitHub `ARCHITECTURE.md`.
-
-### JSON response schema
+### JSON success
 
 ```json
 {
   "ok": true,
   "service": "nexus-trust-agent",
-  "network": { "name": "Pharos Atlantic Testnet", "chainId": 688689 },
+  "network": { "name": "Pharos Pacific Mainnet", "chainId": 1672 },
   "skill": "AgentCreditScore",
   "agent": "0x...",
-  "data": {
-    "registered": true,
-    "score": "758",
-    "creditLimitWei": "1000000000000000000000"
-  },
-  "contracts": {
-    "AgentCreditScore": "0x23Df05400d42122D2962C9ea60d469ba66FE3665"
-  },
-  "explorerUrl": "https://atlantic.pharosscan.xyz/address/0x...",
-  "txHash": null,
+  "data": {},
+  "contracts": {},
+  "explorerUrl": "https://pharosscan.xyz/address/0x...",
   "message": "Human-readable summary"
 }
 ```
 
-### Error response schema
+### Example tasks (usage magnets)
 
-```json
-{
-  "ok": false,
-  "service": "nexus-trust-agent",
-  "error": "Missing required input: agent address",
-  "hint": "Provide a 0x-prefixed agent wallet on Atlantic testnet",
-  "exampleTasks": [
-    "Return full trust stack status for an agent address",
-    "Check whether a spend is allowed under SpendGuard policy"
-  ]
-}
-```
-
-### Supported example tasks
-
-- Register my agent and return its credit score
-- Commit and verify an intent before a large trade
-- Open an x402 payment channel and sign a micropayment
-- Send a private stealth payment on Pharos
-- Check whether a spend is allowed under SpendGuard policy
-- Return full trust stack status for an agent address
+- Check if this agent is trusted enough to pay me
+- Is this spend safe under my policy?
+- Verify my intent before I send funds
+- Show my credit score and limit on Pharos
+- Send a private stealth payment
+- Full trust stack status for my wallet
 
 ## Builder
 
-Henry Sam Marfo · Pharos Phase 1 Winner · GitHub: `henrysammarfo/pharos-skills`
+Henry Sam Marfo · Pharos Phase 1 Winner · `henrysammarfo/pharos-skills`

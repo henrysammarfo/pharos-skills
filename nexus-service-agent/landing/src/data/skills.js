@@ -3,41 +3,36 @@ export const SKILLS = [
     id: "agentcreditscore",
     name: "AgentCreditScore",
     role: "Trust identity and credit tiers",
-    address: "0x23Df05400d42122D2962C9ea60d469ba66FE3665",
-    explorer:
-      "https://atlantic.pharosscan.xyz/address/0x23Df05400d42122D2962C9ea60d469ba66FE3665",
+    address: "0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7",
+    explorer: "https://pharosscan.xyz/address/0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7",
   },
   {
     id: "intentverifier",
     name: "IntentVerifier",
     role: "Commit-reveal and EIP-712 accountability",
-    address: "0x9cC1A13782574c83f15c874551997Dc3cE3b15DF",
-    explorer:
-      "https://atlantic.pharosscan.xyz/address/0x9cC1A13782574c83f15c874551997Dc3cE3b15DF",
+    address: "0x591Fc32E84fd66e335dC1509d09A09af156df355",
+    explorer: "https://pharosscan.xyz/address/0x591Fc32E84fd66e335dC1509d09A09af156df355",
   },
   {
     id: "x402",
     name: "x402PaymentChannel",
     role: "Collateral channels and signed micropayments",
-    address: "0xE16B0109D20C0f1977Dd821d285dd479Af0a9187",
-    explorer:
-      "https://atlantic.pharosscan.xyz/address/0xE16B0109D20C0f1977Dd821d285dd479Af0a9187",
+    address: "0x4cfD9F5cfEA425e8A533a7679559825464121b83",
+    explorer: "https://pharosscan.xyz/address/0x4cfD9F5cfEA425e8A533a7679559825464121b83",
   },
   {
     id: "darkpay",
     name: "DarkPay",
     role: "ERC-5564 stealth address payments",
-    address: "0xF028782C1e4E3BdB19d31A31Db713d185a07b328",
-    explorer:
-      "https://atlantic.pharosscan.xyz/address/0xF028782C1e4E3BdB19d31A31Db713d185a07b328",
+    address: "0x58Bd7bafD2390fD6661A44D104f5296973804793",
+    explorer: "https://pharosscan.xyz/address/0x58Bd7bafD2390fD6661A44D104f5296973804793",
   },
   {
     id: "spendguard",
     name: "SpendGuard",
     role: "Custodial limits and intent-gated spending",
-    address: "0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85",
-    explorer:
-      "https://atlantic.pharosscan.xyz/address/0x8395ada307Aa80C9F66A754fCC2CA01E63F9BB85",
+    address: "0x25DA2D8AC4b14B575930029d105a583AE6630bC8",
+    explorer: "https://pharosscan.xyz/address/0x25DA2D8AC4b14B575930029d105a583AE6630bC8",
   },
 ];
 
@@ -55,7 +50,15 @@ export const MENU_LINKS = [
     href: "https://flow.anvita.xyz/service-agents",
   },
   {
-    label: "Atlantic Explorer",
-    href: "https://atlantic.pharosscan.xyz",
+    label: "Pacific Explorer",
+    href: "https://pharosscan.xyz",
   },
 ];
+
+export const NETWORK = {
+  name: "Pharos Pacific Mainnet",
+  chainId: 1672,
+  rpc: "https://rpc.pharos.xyz",
+  explorer: "https://pharosscan.xyz",
+  unitPriceUsd: 0.02,
+};

@@ -1,24 +1,28 @@
 # NEXUS Composability Flows
 
-Full mermaid diagrams: https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md
+Full mermaid: https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md
 
-## Safe spend flow
+## Everyday: "Is this spend safe?"
 
-1. Client requests spend → NEXUS gathers agent, recipient, amount, intentId
-2. AgentCreditScore → registered? score/limit OK?
-3. IntentVerifier → verified intent if over threshold?
-4. SpendGuard → `canSpend` returns true?
-5. x402 or DarkPay → execute payment
-6. Return tx hash + explorer link
+1. Gather agent, recipient, amount, intentId
+2. AgentCreditScore — registered? score/limit OK?
+3. IntentVerifier — verified if amount is material
+4. SpendGuard — `canSpend` must return true
+5. x402 or DarkPay — execute only after 1–4
+6. Return JSON + Pharosscan links
 
-## Credit-only flow
+## Everyday: "Is this agent trusted?"
 
-1. Client asks for score → gather agent address
-2. `scores` + `getCreditLimit` + `isRegistered` via RPC
-3. Return JSON with contract addresses and human summary
+1. Gather agent address
+2. `isRegistered` + `scores` + `getCreditLimit`
+3. Return score, limit, explorer link
 
 ## Full stack status
 
-1. Client asks for overview → gather agent address
-2. Parallel read calls across all five contracts
-3. Aggregate into single JSON `data` object
+1. Gather agent address
+2. Parallel reads across all five contracts
+3. Aggregate into one JSON response
+
+## Pricing
+
+$0.02 USD per Anvita call (x402 settlement).

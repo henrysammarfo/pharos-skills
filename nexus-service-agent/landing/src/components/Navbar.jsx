@@ -41,8 +41,8 @@ export default function Navbar({
         </button>
 
         <div className="tags-pill desktop-only">
-          <span>Trust Infrastructure</span>
-          <span>Cognitive Agents</span>
+          <span>Everyday Trust</span>
+          <span>Spend Safe</span>
         </div>
       </div>
 

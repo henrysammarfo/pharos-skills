@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { NETWORK } from "../data/skills.js";
 
 const ease = [0.16, 1, 0.3, 1];
 
@@ -7,6 +8,9 @@ const ARCHITECTURE =
   "https://github.com/henrysammarfo/pharos-skills/blob/master/ARCHITECTURE.md";
 
 export default function Footer() {
+  const price = NETWORK?.unitPriceUsd ?? 0.02;
+  const networkLabel = NETWORK?.name ?? "Pharos Pacific Mainnet";
+
   return (
     <motion.footer
       className="footer"
@@ -23,7 +27,7 @@ export default function Footer() {
             transition={{ delay: 0.6, duration: 0.8, ease }}
           >
             <span className="subtitle-dot" />
-            Pharos Phase 2 Service Agent · Atlantic Testnet
+            {networkLabel} · ${price.toFixed(2)} / call
           </motion.p>
 
           <motion.h1
@@ -32,9 +36,9 @@ export default function Footer() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8, ease }}
           >
-            One Agent, Full
+            Is this spend
             <br />
-            Trust Stack.
+            safe today?
           </motion.h1>
 
           <motion.div
@@ -49,7 +53,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              See Skills
+              Check Trust
             </a>
             <a
               href={ARCHITECTURE}
@@ -64,7 +68,7 @@ export default function Footer() {
 
         <div className="footer-right">
           <span className="tag-pill">Credit</span>
-          <span className="tag-pill">x402</span>
+          <span className="tag-pill">SpendSafe</span>
           <span className="tag-pill">Stealth</span>
         </div>
       </div>

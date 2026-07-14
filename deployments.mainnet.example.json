@@ -1,0 +1,31 @@
+{
+  "network": "Pharos Pacific Mainnet",
+  "chainId": 1672,
+  "rpc": "https://rpc.pharos.xyz",
+  "explorer": "https://pharosscan.xyz",
+  "deployer": "0x4BC1C93eF8E77E9aD9A045d7Fd760bcd500F7B00",
+  "deployedAt": "2026-07-14T14:59:52.035Z",
+  "pricing": {
+    "unitPriceUsd": 0.02,
+    "model": "x402 per-call"
+  },
+  "contracts": {
+    "AgentCreditScore": "0xA3399056b2CD7b404d0e99020b0ECBB8F40dc5F7",
+    "IntentVerifier": "0x591Fc32E84fd66e335dC1509d09A09af156df355",
+    "x402PaymentChannel": "0x4cfD9F5cfEA425e8A533a7679559825464121b83",
+    "DarkPay": "0x58Bd7bafD2390fD6661A44D104f5296973804793",
+    "SpendGuard": "0x25DA2D8AC4b14B575930029d105a583AE6630bC8"
+  },
+  "transactions": {
+    "deploy_AgentCreditScore": "0x239395fd0bda9877e58e0f4b70e3f372a6b9f6f727de29cf178e0f1c426a3421",
+    "deploy_IntentVerifier": "0x13280e6995199223462a9ca1e22895f9b45c9cb5d855358065c8a06590ca9eed",
+    "deploy_x402PaymentChannel": "0xd1675c2363b6a849abde2dbd7c54a6a05537e971fc41988b9ad255b7abb51a27",
+    "deploy_DarkPay": "0x43be18cc7da85889a2d219936f0e216474c5b4037076474952ce70a1c1e11317",
+    "deploy_SpendGuard": "0x7c54e1a639d7664669d86163e669a5c6732aa535706889a05e591fc4585fce8f",
+    "addSkill_IntentVerifier": "0x3f92f2dc86811d889a0d20d9869e3b605287c74a488b045ace5880bb13041e9e",
+    "addSkill_x402PaymentChannel": "0x8d81a2d831f231b817bba26664400f1db4d3a5550c1dfea5008422713f981945",
+    "spendGuard_setIntentVerifier": "0x32934835bc01419b1e3a381e5eb558df036a72320d5964a02c4e1083e468f026",
+    "spendGuard_setExecutor_x402": "0x05155c29e430fb533b1b8cf65474ed63c7a6102b3c8cfa4a651c846bf82d3300"
+  },
+  "note": "Public example — private keys never included"
+}

@@ -1,41 +1,48 @@
 # NEXUS Trust Agent
 
-Phase 2 Service Agent for the Pharos Skill-to-Agent Dual Cascade Hackathon.
+Phase 2 Service Agent — **Pharos Pacific Mainnet** · **$0.02 / call**
 
-Composes all five verified Atlantic Testnet Skills into one Anvita-uploadable package.
+Everyday trust co-pilot: credit checks, spend safety, intent verify, x402, stealth.
 
 ## Contents
 
 | Path | Purpose |
 |------|---------|
-| `SKILL.md` | Anvita manifest (execution, client flow, delivery standards) |
+| `SKILL.md` | Anvita manifest (execution, client flow, delivery) |
 | `scripts/` | `handler.mjs`, `status.mjs` |
-| `references/` | Contract addresses and composability flows |
-| `assets/` | Agent card metadata |
-| `landing/` | React 19 hero landing page |
-| `SUBMISSION.md` | Upload checklist |
-| `VIDEO-SCRIPT.md` | Demo video outline |
+| `references/` | Contract addresses and flows |
+| `assets/` | Avatar + agent-card metadata |
+| `FUNDING-MAINNET.md` | Fresh deployer funding checklist |
+| `ANVITA-PUBLISH.md` | Copy-paste for Publish screen (after deploy) |
+| `ANVITA-SERVICE-STRATEGY.md` | Service Strategy paste |
+| `landing/` | Hero landing (Vercel) |
+
+## Mainnet deploy (first time)
+
+1. Fund deployer — see [`FUNDING-MAINNET.md`](./FUNDING-MAINNET.md)
+2. From repo root:
+
+```powershell
+npm run deploy:pacific:watch
+# or manually after funding:
+npm run deploy:pacific
+npm run smoke:pacific -- --register
+npm run nexus:sync
+npm run nexus:package
+```
 
 ## Package for Anvita
 
 ```powershell
-.\nexus-service-agent\scripts\package-anvita-zip.ps1
+npm run nexus:package
 ```
 
-Output: `nexus-service-agent/dist/nexus-trust-agent-anvita.zip`
+Zip layout: `nexus-trust-agent/SKILL.md` + scripts/references/assets
 
-## Landing page
+## Landing
 
 ```powershell
-cd nexus-service-agent\landing
-npm install
-npm run dev
+npm run nexus:landing
 ```
 
-## Runtime test
-
-```bash
-node -e "import('./scripts/handler.mjs').then(m => m.handleRequest({ task: 'full stack status', agent: '0xCC7cE09579EF39848ddddc36421CeB0F665096dC' }).then(console.log))"
-```
-
-Full SDK/MCP: parent repo `npm run test:agent`.
+Live: https://nexus-trust-agent.vercel.app

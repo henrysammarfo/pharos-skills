@@ -1,7 +1,7 @@
 {
   "name": "pharos-skills",
   "version": "2.0.0",
-  "description": "Pharos AI Agent Trust Infrastructure — 5 composable Skills on Atlantic Testnet",
+  "description": "Pharos AI Agent Trust Infrastructure — 5 composable Skills on Pacific Mainnet",
   "author": "Henry Sam Marfo <https://github.com/henrysammarfo>",
   "license": "MIT",
   "repository": {
@@ -22,6 +22,11 @@
     "test:all": "forge build && forge test && npm run compile && npm test",
     "build": "forge build && npm run compile",
     "deploy:atlantic": "node scripts/deploy-atlantic.mjs",
+    "deploy:pacific": "node scripts/deploy-pacific.mjs",
+    "balance:pacific": "node scripts/check-pacific-balance.mjs",
+    "smoke:pacific": "node scripts/smoke-pacific.mjs",
+    "nexus:sync": "node scripts/sync-nexus-mainnet.mjs",
+    "deploy:pacific:watch": "node scripts/wait-fund-deploy-pacific.mjs",
     "integrate:atlantic": "node scripts/integrate-atlantic.mjs",
     "verify:atlantic": "node scripts/verify-atlantic.mjs",
     "judge:readiness": "node scripts/judge-readiness.mjs",
