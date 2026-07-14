@@ -41,8 +41,8 @@ export default function Navbar({
         </button>
 
         <div className="tags-pill desktop-only">
-          <span>Everyday Trust</span>
-          <span>Spend Safe</span>
+          <span>Free on Anvita</span>
+          <span>Pacific Mainnet</span>
         </div>
       </div>
 

@@ -410,6 +410,14 @@ button {
   color: #000000;
 }
 
+.hero-support {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgba(0, 0, 0, 0.55);
+  max-width: 28rem;
+}
+
 .button-row {
   display: flex;
   flex-wrap: wrap;
